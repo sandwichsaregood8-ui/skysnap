@@ -67,7 +67,7 @@ export function SignInForm() {
                                     className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" 
                                     id="email" 
                                     placeholder="name@company.com" 
-                                    type="email"
+                                    type="text"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)} />
                             </div>
