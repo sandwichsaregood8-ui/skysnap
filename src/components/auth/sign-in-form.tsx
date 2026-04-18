@@ -1,10 +1,12 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { useToast } from '@/hooks/use-toast';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" {...props}>
@@ -18,6 +20,23 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function SignInForm() {
     const [showPassword, setShowPassword] = useState(false);
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const router = useRouter();
+    const { toast } = useToast();
+
+    const handleSubmit = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (email === '000' && password === '000') {
+            router.push('/dashboard');
+        } else {
+            toast({
+                variant: "destructive",
+                title: "Login Failed",
+                description: "Invalid email or password.",
+            });
+        }
+    };
 
     return (
         <div className="w-full max-w-md relative">
@@ -38,20 +57,32 @@ export function SignInForm() {
                     </div>
                 </div>
 
-                <form className="space-y-6">
+                <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-5">
                         <div className="space-y-2 group">
                             <Label className="text-xs font-medium text-on-surface-variant/70 ml-1" htmlFor="email">Email</Label>
                             <div className="relative">
                                 <Mail className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors text-lg" />
-                                <Input className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" id="email" placeholder="name@company.com" type="email" />
+                                <Input 
+                                    className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                                    id="email" 
+                                    placeholder="name@company.com" 
+                                    type="email"
+                                    value={email}
+                                    onChange={(e) => setEmail(e.target.value)} />
                             </div>
                         </div>
                         <div className="space-y-2 group">
                             <Label className="text-xs font-medium text-on-surface-variant/70 ml-1" htmlFor="password">Password</Label>
                             <div className="relative">
                                 <Lock className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors text-lg" />
-                                <Input className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-12 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" id="password" placeholder="••••••••" type={showPassword ? "text" : "password"} />
+                                <Input 
+                                    className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-12 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                                    id="password" 
+                                    placeholder="••••••••" 
+                                    type={showPassword ? "text" : "password"}
+                                    value={password}
+                                    onChange={(e) => setPassword(e.target.value)} />
                                 <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors h-auto w-auto p-1 hover:bg-transparent" type="button" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </Button>
