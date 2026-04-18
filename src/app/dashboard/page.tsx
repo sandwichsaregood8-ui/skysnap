@@ -3,7 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Plus, Menu, Videocam } from 'lucide-react';
+import { Plus, Menu, Video } from 'lucide-react';
 
 const ShaderCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -169,7 +169,7 @@ export default function MyDevicesPage() {
                                     </div>
                                 </div>
                                 <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md px-6 py-3 rounded-xl font-label text-sm uppercase tracking-widest transition-all h-auto">
-                                    <Videocam className="mr-2 h-4 w-4" />
+                                    <Video className="mr-2 h-4 w-4" />
                                     view pictures taken
                                 </Button>
                             </div>
