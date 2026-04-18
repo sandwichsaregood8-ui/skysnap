@@ -2,7 +2,6 @@ import Link from "next/link";
 import {
     Sidebar,
     SidebarProvider,
-    SidebarTrigger,
     SidebarInset,
     SidebarHeader,
     SidebarContent,
@@ -11,8 +10,8 @@ import {
     SidebarMenuButton,
     SidebarFooter
 } from "@/components/ui/sidebar";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Home, Settings, LogOut } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Home, GalleryVertical, Camera, Users, LogOut, Gem } from "lucide-react";
 
 export default function DashboardLayout({
     children,
@@ -20,62 +19,77 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     return (
-        <SidebarProvider>
-            <Sidebar>
-                <SidebarHeader>
-                    <div className="flex items-center gap-3">
-                         <Avatar className="h-8 w-8">
-                            <AvatarImage src="https://github.com/shadcn.png" alt="@shadcn" />
-                            <AvatarFallback>TU</AvatarFallback>
-                        </Avatar>
-                        <div className="flex flex-col">
-                            <span className="text-sm font-semibold">Test User</span>
-                            <span className="text-xs text-muted-foreground">test@example.com</span>
+        <>
+            <div className="ambient-bg"></div>
+            <SidebarProvider>
+                <Sidebar>
+                    <SidebarHeader className="px-4">
+                        <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg">
+                                <Camera className="text-white" />
+                            </div>
+                            <h1 className="text-lg font-bold text-white tracking-tight">SkySnap</h1>
                         </div>
-                    </div>
-                </SidebarHeader>
-                <SidebarContent>
-                    <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild isActive>
-                                <Link href="/dashboard">
-                                    <Home />
-                                    <span>Dashboard</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild>
-                                <Link href="#">
-                                    <Settings />
-                                    <span>Settings</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarContent>
-                <SidebarFooter>
-                     <SidebarMenu>
-                        <SidebarMenuItem>
-                            <SidebarMenuButton asChild>
-                                <Link href="/">
-                                    <LogOut />
-                                    <span>Logout</span>
-                                </Link>
-                            </SidebarMenuButton>
-                        </SidebarMenuItem>
-                    </SidebarMenu>
-                </SidebarFooter>
-            </Sidebar>
-            <SidebarInset>
-                 <div className="p-4 flex items-center gap-2 border-b">
-                    <SidebarTrigger />
-                    <h1 className="text-lg font-semibold">Dashboard</h1>
-                </div>
-                <div className="p-4">
+                    </SidebarHeader>
+                    <SidebarContent>
+                        <SidebarMenu>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild isActive>
+                                    <Link href="/dashboard">
+                                        <Home />
+                                        <span>Home</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href="#">
+                                        <GalleryVertical />
+                                        <span>Gallery</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href="#">
+                                        <Camera />
+                                        <span>Devices</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                            <SidebarMenuItem>
+                                <SidebarMenuButton asChild>
+                                    <Link href="#">
+                                        <Users />
+                                        <span>Community</span>
+                                    </Link>
+                                </SidebarMenuButton>
+                            </SidebarMenuItem>
+                        </SidebarMenu>
+                    </SidebarContent>
+                    <SidebarFooter>
+                        <div className="flex flex-col gap-2 px-2">
+                            <Button className="w-full bg-gradient-to-br from-primary to-primary-container text-white h-auto py-3">
+                                <Gem className="mr-2 h-4 w-4" />
+                                Upgrade to Pro
+                            </Button>
+                            <SidebarMenu>
+                                <SidebarMenuItem>
+                                    <SidebarMenuButton asChild>
+                                        <Link href="/">
+                                            <LogOut />
+                                            <span>Logout</span>
+                                        </Link>
+                                    </SidebarMenuButton>
+                                </SidebarMenuItem>
+                            </SidebarMenu>
+                        </div>
+                    </SidebarFooter>
+                </Sidebar>
+                <SidebarInset>
                     {children}
-                </div>
-            </SidebarInset>
-        </SidebarProvider>
+                </SidebarInset>
+            </SidebarProvider>
+        </>
     );
 }
