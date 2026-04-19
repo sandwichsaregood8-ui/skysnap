@@ -207,8 +207,7 @@ export default function MyDevicesPage() {
                             <Plus className="text-4xl text-white" />
                         </div>
                         <div className="relative text-center">
-                            <h4 className="font-headline text-xl font-bold text-white mb-1">Set up new device</h4>
-                            <p className="font-body text-sm text-on-surface-variant px-8">Add a new device.</p>
+                            <h4 className="font-headline text-xl font-bold text-white">Set up or add new device</h4>
                         </div>
                         <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
                     </Button>
