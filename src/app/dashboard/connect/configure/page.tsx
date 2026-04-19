@@ -12,7 +12,7 @@ export default function ConfigureWifiPage() {
             <div className="filament-border w-full max-w-md z-10 shadow-[0_20px_50px_rgba(0,0,0,0.5)]">
                 <div className="glass-card rounded-[1.4rem] p-8 md:p-10 flex flex-col">
                     <header className="mb-10 text-center">
-                        <h1 className="text-3xl font-extrabold tracking-[-0.04em] text-on-surface mb-2 font-headline uppercase">
+                        <h1 className="text-2xl md:text-3xl font-extrabold tracking-[-0.04em] text-on-surface mb-2 font-headline uppercase">
                             Configure&nbsp;&nbsp;&nbsp;Wi-Fi
                         </h1>
                         <p className="text-on-surface-variant font-label text-xs tracking-[0.08em] uppercase font-bold">
