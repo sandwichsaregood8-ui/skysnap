@@ -22,11 +22,15 @@ export function BackgroundGradient() {
         }
     `;
 
+    // The user wants a sine wave with static and dynamic properties.
+    // I will combine a main, slow-moving sine wave with faster, smaller waves
+    // and use FBM noise to create a textured, atmospheric effect.
     const fragmentSource = `
         precision highp float;
         uniform float u_time;
         uniform vec2 u_resolution;
 
+        // FBM noise function to add texture
         float random (in vec2 _st) {
             return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
         }
@@ -39,7 +43,7 @@ export function BackgroundGradient() {
                         mix(random(i + vec2(0.0,1.0)), random(i + vec2(1.0,1.0)), u.x), u.y);
         }
 
-        #define NUM_OCTAVES 3
+        #define NUM_OCTAVES 5
         float fbm ( in vec2 _st) {
             float v = 0.0;
             float a = 0.5;
@@ -56,19 +60,44 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+            float aspect = u_resolution.x / u_resolution.y;
+            uv.x *= aspect;
+
+            float time = u_time * 0.2;
+
+            // Static component: A wide, gentle sine wave shaping the background
+            float static_wave = sin(uv.y * 2.0 + 1.5) * 0.25;
+
+            // Dynamic component: Faster moving, smaller waves for shimmer
+            float dynamic_wave1 = sin(uv.x * 10.0 + time) * 0.02;
+            float dynamic_wave2 = cos(uv.y * 15.0 - time * 1.5) * 0.015;
+
+            // Combine the waves to distort the y-coordinate
+            float final_y = uv.y + static_wave + dynamic_wave1 + dynamic_wave2;
+
+            // Use noise for a smoky/aurora texture, animated over time
+            vec2 noise_coord = vec2(uv.x * 1.5, final_y * 2.0 - time * 0.05);
+            float n = fbm(noise_coord);
+
+            // Color palette based on the app's theme
+            vec3 color1 = vec3(0.09, 0.08, 0.12); // Dark background
+            vec3 color2 = vec3(0.486, 0.227, 0.929); // Primary purple
+            vec3 color3 = vec3(0.176, 0.831, 0.749); // Accent teal
+
+            // Mix colors based on the noise and wave patterns
+            vec3 color = mix(color1, color2, smoothstep(0.3, 0.6, n));
             
-            float t = u_time * 0.05;
+            // Add a highlight from another sine wave for more visual interest
+            float highlight = sin(final_y * 30.0 + time * 0.5) * 0.5 + 0.5;
+            highlight = pow(highlight, 10.0);
+            color += color3 * highlight * 0.3;
 
-            vec2 p = uv * 0.5 + vec2(t * 0.1, t * 0.05);
-            float n = fbm(p);
+            // Add some fine-grained noise for a bit of grain
+            color += (random(uv * 500.0) - 0.5) * 0.05;
 
-            vec3 base_color = vec3(0.04, 0.04, 0.12);
-            vec3 glow_color = vec3(0.08, 0.07, 0.2);
-
-            vec3 color = mix(base_color, glow_color, n);
-
-            float vignette = length(uv - 0.5);
-            color *= smoothstep(0.9, 0.25, vignette);
+            // Apply a vignette effect to darken the edges
+            float vignette = 1.0 - length(uv - vec2(aspect*0.5, 0.5)) * 0.8;
+            color *= pow(vignette, 0.7);
 
             gl_FragColor = vec4(color, 1.0);
         }
