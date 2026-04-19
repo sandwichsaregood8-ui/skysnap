@@ -157,7 +157,6 @@ export default function GalleryPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
                         <div className="absolute bottom-6 left-6">
                             <p className="text-xs font-bold tracking-[0.1em] text-primary mb-1 uppercase">Long Exposure</p>
-                            <h3 className="text-xl font-bold tracking-tight">Polaris Rotation</h3>
                         </div>
                     </div>
                     <div className="md:col-span-4 group relative rounded-3xl overflow-hidden aspect-square shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
@@ -172,7 +171,6 @@ export default function GalleryPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
                         <div className="absolute bottom-6 left-6">
                             <p className="text-xs font-bold tracking-[0.1em] text-primary mb-1 uppercase">Atmospheric</p>
-                            <h3 className="text-xl font-bold tracking-tight">Nordic Glow</h3>
                         </div>
                     </div>
                     <div className="md:col-span-4 group relative rounded-3xl overflow-hidden aspect-square shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
@@ -187,7 +185,6 @@ export default function GalleryPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
                         <div className="absolute bottom-6 left-6">
                             <p className="text-xs font-bold tracking-[0.1em] text-primary mb-1 uppercase">Intergalactic</p>
-                            <h3 className="text-xl font-bold tracking-tight">M31 Andromeda</h3>
                         </div>
                     </div>
                     <div className="md:col-span-4 group relative rounded-3xl overflow-hidden aspect-square shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
@@ -202,7 +199,6 @@ export default function GalleryPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
                         <div className="absolute bottom-6 left-6">
                             <p className="text-xs font-bold tracking-[0.1em] text-primary mb-1 uppercase">Panorama</p>
-                            <h3 className="text-xl font-bold tracking-tight">Canyon Core</h3>
                         </div>
                     </div>
                 </div>
