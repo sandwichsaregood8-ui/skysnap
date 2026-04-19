@@ -11,16 +11,12 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
     return (
         <button
             className={cn(
-                "group w-full h-[48px] flex items-center justify-center rounded-full transition-transform active:scale-95 duration-200 bg-transparent border border-primary",
+                "w-full h-[48px] flex items-center justify-center rounded-full bg-transparent border border-primary text-white font-medium text-[16px] tracking-tight transition-transform active:scale-95 duration-200",
                 className
             )}
             {...props}
         >
-            <span
-                className="relative z-10 text-white font-medium text-[16px] tracking-tight"
-            >
-                {children}
-            </span>
+            {children}
         </button>
     );
 }
