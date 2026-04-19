@@ -27,31 +27,26 @@ export function BackgroundGradient() {
         uniform float u_time;
         uniform vec2 u_resolution;
 
-        // Using colors from your app's theme
-        const vec3 color1 = vec3(0.043, 0.075, 0.149); // background: #0b1326
-        const vec3 color2 = vec3(0.486, 0.227, 0.929); // primary-container: #7c3aed
-        const vec3 color3 = vec3(0.824, 0.733, 1.0);   // primary: #d2bbff
-        const vec3 accentColor = vec3(0.239, 0.843, 0.878); // teal accent
+        // Using colors inspired by the image, very dark and subtle.
+        const vec3 color_bg = vec3(0.04, 0.07, 0.15);      // Deep Navy (#0a1226)
+        const vec3 color_highlight1 = vec3(0.1, 0.05, 0.25); // Indigo
+        const vec3 color_highlight2 = vec3(0.15, 0.1, 0.3);   // Faint Violet
 
         void main() {
             vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-            float t = u_time * 0.1;
+            float t = u_time * 0.1; // Slow time for subtle movement
 
-            // Wide cosine wave, primarily vertical
-            float cos_wave1 = cos(uv.y * 2.0 - t) * 0.5 + 0.5;
-            vec3 color = mix(color1, color2, cos_wave1);
-
-            // Second wide cosine wave, slightly diagonal and slower
-            float cos_wave2 = cos((uv.y * 1.5 + uv.x * 0.5) - t * 0.8) * 0.5 + 0.5;
-            color = mix(color, color3, cos_wave2 * 0.4);
-
-            // A subtle, wide sine wave for the accent color
-            float sin_wave_accent = sin(uv.x * 1.0 - uv.y * 0.5 + t * 1.5) * 0.5 + 0.5;
-            color = mix(color, accentColor, sin_wave_accent * 0.15);
+            // Create two very wide, slow-moving, overlapping waves
+            float wave1 = sin(uv.x * 0.5 - uv.y * 0.2 + t) * 0.5 + 0.5;
+            float wave2 = cos(uv.y * 0.7 + uv.x * 0.3 - t * 0.8) * 0.5 + 0.5;
             
-            // Add a soft vignette to focus the center
-            float vignette = 1.0 - smoothstep(0.6, 1.0, length(uv - vec2(0.5)));
-            color *= vignette * 1.1 + 0.9;
+            // Mix the colors. The waves will control the mix factor.
+            vec3 color = mix(color_bg, color_highlight1, wave1 * 0.25); // highlight 1 is subtle
+            color = mix(color, color_highlight2, wave2 * 0.15); // highlight 2 is even more subtle
+
+            // A dark vignette to keep focus on the center and match the image
+            float vignette = smoothstep(1.0, 0.4, length(uv - vec2(0.5)));
+            color *= vignette;
 
             gl_FragColor = vec4(color, 1.0);
         }
