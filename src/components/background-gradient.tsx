@@ -83,16 +83,16 @@ export function BackgroundGradient() {
             
             // SELF-REMINDER: THE WAVES CANNOT BE VERTICAL. THEY MUST BE HORIZONTAL.
             // Wave calculation is based on y for horizontal bands.
-            // The fbm adds distortion to the wave.
+            // A very slow upward movement is added to the distortion coordinate.
             vec2 fbm_coord = p * 0.5 + vec2(t * 0.1, u_time * 0.0001);
             float y = p.y + fbm(fbm_coord) * 0.05; 
 
-            // Create multiple horizontal waves with different frequencies and speeds
-            float wave1 = 1.0 - abs(sin(y * 8.0 - t));
-            wave1 = pow(wave1, 15.0);
+            // Create multiple horizontal waves with longer periods (lower frequency)
+            float wave1 = 1.0 - abs(sin(y * 4.0 - t));
+            wave1 = pow(wave1, 10.0); // Reduced pow for wider crests
 
-            float wave2 = 1.0 - abs(sin(y * 12.0 - t * 1.2));
-            wave2 = pow(wave2, 18.0);
+            float wave2 = 1.0 - abs(sin(y * 6.0 - t * 1.2));
+            wave2 = pow(wave2, 12.0); // Reduced pow for wider crests
 
             // Combining waves
             float combined_wave = wave1 * 0.6 + wave2 * 0.4;
@@ -103,8 +103,8 @@ export function BackgroundGradient() {
             // Mix colors
             vec3 aurora_color = mix(purple, teal, noise_texture);
             
-            // Apply the wave as a mask, making it more intense
-            color = mix(color, aurora_color, combined_wave * 0.6);
+            // Apply the wave as a mask, making it more intense. Amplitude adjustment here.
+            color = mix(color, aurora_color, combined_wave * 0.8);
 
             // Reduce stars significantly
             float stars = pow(noise(p * 300.0), 30.0);
