@@ -10,8 +10,8 @@ export function SetupButton() {
   };
 
   const orbs = [
-    { color: "hsl(261, 100%, 86%)", d: 15 },
-    { color: "hsl(243, 100%, 87%)", d: 20 },
+    { color: "hsl(var(--primary))", d: 15 },
+    { color: "hsl(var(--secondary))", d: 20 },
   ];
 
   return (
@@ -37,7 +37,7 @@ export function SetupButton() {
       <style>{`
         .fusion-button {
           position: relative;
-          padding: 1px;
+          padding: 2px;
           border: none;
           cursor: pointer;
           background: transparent;
@@ -65,7 +65,7 @@ export function SetupButton() {
             height: 200%;
             background: conic-gradient(
                 transparent,
-                hsl(var(--primary) / 0.3),
+                hsl(var(--primary) / 0.6),
                 transparent 30%
             );
             animation: rotate-border 20s linear infinite;
@@ -74,9 +74,9 @@ export function SetupButton() {
 
         .button-inner {
           position: absolute;
-          inset: 1px;
-          background: rgba(34, 42, 62, 0.85); /* surface-container-high from theme */
-          border-radius: 27px;
+          inset: 2px;
+          background: hsl(var(--background));
+          border-radius: 26px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -102,7 +102,6 @@ export function SetupButton() {
           top: 50%;
           left: 50%;
           transform-origin: 0 0;
-          mix-blend-mode: hard-light;
           filter: blur(50px);
           opacity: 0.25;
           animation: orb-move var(--d) linear infinite;
