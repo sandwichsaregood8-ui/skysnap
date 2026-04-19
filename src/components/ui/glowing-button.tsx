@@ -17,7 +17,7 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
             {...props}
         >
             {/* The rotating gradient for the border */}
-            <div className="absolute inset-[-200%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(255,255,255,0.8)_0%,rgba(120,110,255,0.4)_50%,rgba(255,255,255,0.8)_100%)]" />
+            <div className="absolute inset-[-200%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,rgba(120,110,255,0.2)_0%,rgba(255,255,255,0.8)_50%,rgba(120,110,255,0.2)_100%)]" />
 
             {/* The inner part of the button, masking the center of the gradient */}
             <div
