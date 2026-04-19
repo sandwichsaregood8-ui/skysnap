@@ -27,10 +27,6 @@ export function BackgroundGradient() {
         uniform float u_time;
         uniform vec2 u_resolution;
 
-        // The aurora effect is created by layering multiple noise functions (fbm)
-        // to create a flowing, organic shape. The colors are blended based on
-        // the noise values to get the multi-colored aurora feel from the image.
-
         float random (in vec2 _st) {
             return fract(sin(dot(_st.xy,
                                  vec2(12.9898,78.233)))*
@@ -74,32 +70,40 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = gl_FragCoord.xy/u_resolution.xy;
-            float t = u_time * 0.05; // Slowed down animation
+            float t = u_time * 0.1;
 
             // Background Color
-            vec3 final_color = vec3(0.005, 0.005, 0.015);
+            vec3 final_color = vec3(0.005, 0.005, 0.015); // Deep space blue
 
-            // Create a flowing, distorted coordinate space for the aurora
-            vec2 pos = uv;
-            pos.x *= 1.4; // Stretch the noise horizontally
-            pos.y *= 0.7; // Compress the noise vertically
-            float f = fbm(pos * 1.2 + vec2(t * -0.3, 0.0));
-            
-            // Create the main aurora shape from the noise, making it a wide band
-            float aurora_shape = smoothstep(0.45, 0.6, f) - smoothstep(0.6, 0.7,f);
-
-            // Define the aurora colors from the image
+            // Define the aurora colors
             vec3 purple = vec3(0.4, 0.15, 0.6);
             vec3 blue = vec3(0.1, 0.3, 0.8);
             vec3 cyan = vec3(0.1, 0.7, 0.7);
 
-            // Layer the colors based on another noise pattern to create variety within the band
-            float color_noise = fbm(uv * 3.0 + vec2(t * 0.2, 0.0));
-            vec3 aurora_color = mix(purple, blue, smoothstep(0.4, 0.6, color_noise));
-            aurora_color = mix(aurora_color, cyan, smoothstep(0.55, 0.7, color_noise));
+            // --- Gassy Effect ---
+            // Create multiple layers of noise moving at different speeds for a parallax effect.
 
-            // Combine shape and color
-            final_color += aurora_color * aurora_shape * 1.2;
+            // Layer 1: Slow, large background clouds
+            vec2 uv1 = uv * 0.8 + vec2(t * 0.1, t * 0.05);
+            float f1 = fbm(uv1);
+            
+            // Layer 2: Medium-sized, faster wisps
+            vec2 uv2 = uv * 1.5 + vec2(t * -0.2, t * 0.15);
+            float f2 = fbm(uv2);
+
+            // Layer 3: Small, fast details
+            vec2 uv3 = uv * 3.0 + vec2(t * 0.3, t * -0.25);
+            float f3 = fbm(uv3);
+
+            // Blend colors using the noise layers as masks
+            // Use smoothstep to create soft-edged patches of color ("gassy")
+            final_color = mix(final_color, purple, smoothstep(0.4, 0.6, f1) * 0.6);
+            final_color = mix(final_color, blue, smoothstep(0.5, 0.7, f2) * 0.5);
+            final_color = mix(final_color, cyan, smoothstep(0.6, 0.75, f3) * 0.4);
+            
+            // Add some brighter "hot spots"
+            float hotspot_mask = pow(fbm(uv * 4.0 + t), 4.0);
+            final_color += vec3(0.8, 0.8, 1.0) * hotspot_mask * 0.3;
 
             // Vignette to darken the edges
             final_color *= smoothstep(1.3, 0.35, length(uv - vec2(0.5)));
