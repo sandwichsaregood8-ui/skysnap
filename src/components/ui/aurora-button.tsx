@@ -16,7 +16,7 @@ const AuroraButton = React.forwardRef<HTMLButtonElement, AuroraButtonProps>(
         <button
           ref={ref}
           className={cn(
-            'relative z-10 w-full px-8 py-4 font-bold text-white bg-gradient-to-r from-[#7c3aed] via-[#a855f7] to-[#38bdf8] rounded-full shadow-lg', // Using a purple-to-blue gradient for the button
+            'relative z-10 w-full px-8 py-4 text-slate-900 bg-gradient-to-r from-violet-200 via-cyan-200 to-violet-200 rounded-full',
             className
           )}
           {...props}
@@ -31,7 +31,7 @@ const AuroraButton = React.forwardRef<HTMLButtonElement, AuroraButtonProps>(
             width: 250%; /* Large blob */
             padding-bottom: 250%;
             border-radius: 50%;
-            background: linear-gradient(135deg, #7c3aed, #c4b5fd, #87ceeb);
+            background: linear-gradient(135deg, #a855f7, #7dd3fc, #c4b5fd);
             filter: blur(80px); /* Heavy blur */
             transform: translate(-50%, -50%);
             z-index: 0;
@@ -44,18 +44,12 @@ const AuroraButton = React.forwardRef<HTMLButtonElement, AuroraButtonProps>(
             0% {
               transform: translate(-50%, -50%) rotate(0deg) scale(1);
             }
-            25% {
-              transform: translate(-45%, -55%) rotate(45deg) scale(1.1);
-            }
             50% {
-              transform: translate(-50%, -50%) rotate(90deg) scale(1.2);
+              transform: translate(-52%, -48%) rotate(180deg) scale(1.1);
               opacity: 0.7;
             }
-            75% {
-              transform: translate(-55%, -45%) rotate(135deg) scale(1.1);
-            }
             100% {
-              transform: translate(-50%, -50%) rotate(180deg) scale(1);
+              transform: translate(-50%, -50%) rotate(360deg) scale(1);
             }
           }
           .group:hover .aurora-glow {
