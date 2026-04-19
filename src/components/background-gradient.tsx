@@ -35,32 +35,33 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-            float t = u_time * 0.25;
+            float t = u_time * 0.2; // slow down time a bit for tan
 
-            // Create layered horizontal sine waves
-            float wave1 = sin(uv.x * 2.5 + t * 0.8) * 0.08;
-            float wave2 = sin(uv.x * 4.0 - t * 1.2) * 0.05;
-            float wave3 = sin(uv.x * 1.5 + t * 0.4) * 0.12;
+            // Create layered horizontal tangent waves for sharper look
+            float wave1 = (fract(tan(uv.x * 1.5 + t * 0.5)) * 2.0 - 1.0) * 0.06;
+            float wave2 = (fract(tan(uv.x * 2.5 - t * 0.7)) * 2.0 - 1.0) * 0.04;
+            float wave3 = (fract(tan(uv.x * 1.0 + t * 0.3)) * 2.0 - 1.0) * 0.1;
 
             // Boundary positions for bands
             float boundary1 = 0.35 + wave1;
             float boundary2 = 0.65 + wave2;
             float boundary3 = 0.85 + wave3;
 
-            // Mix colors with clean but smooth transitions
+            // Mix colors with sharper transitions
             vec3 color = NAVY;
             
             // Indigo band
-            float mask1 = smoothstep(boundary1 - 0.15, boundary1 + 0.15, uv.y);
+            float mask1 = smoothstep(boundary1 - 0.05, boundary1 + 0.05, uv.y);
             color = mix(color, INDIGO, mask1);
 
             // Violet band
-            float mask2 = smoothstep(boundary2 - 0.2, boundary2 + 0.2, uv.y);
+            float mask2 = smoothstep(boundary2 - 0.1, boundary2 + 0.1, uv.y);
             color = mix(color, VIOLET, mask2);
 
-            // Subtle light ripples travelling across
-            float ripple = sin(uv.x * 10.0 - uv.y * 5.0 + t * 2.0) * 0.5 + 0.5;
-            float rippleMask = pow(ripple, 8.0) * 0.08;
+            // Sharper, more glitch-like ripples
+            float ripple_t = t * 4.0;
+            float ripple = fract(tan(uv.x * 8.0 - uv.y * 4.0 + ripple_t));
+            float rippleMask = pow(1.0 - ripple, 12.0) * 0.15;
             color += LIGHT_VIOLET * rippleMask;
 
             // Add depth with vertical gradient
