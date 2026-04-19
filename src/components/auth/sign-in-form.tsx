@@ -39,7 +39,7 @@ export function SignInForm() {
     };
 
     return (
-        <div className="w-full max-w-md relative">
+        <div className="w-full max-w-sm relative">
             <div className="glass-card chromatic-border rounded-[2rem] p-10 ambient-glow">
                 <div className="mb-10">
                     <div className="flex items-center gap-3 mb-6">
