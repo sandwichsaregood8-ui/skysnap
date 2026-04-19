@@ -82,11 +82,11 @@ export function BackgroundGradient() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
             float time = u_time * 0.1;
 
-            // Define colors from the theme - using a more muted, less neon palette
-            vec3 color1 = vec3(0.09, 0.08, 0.12); // Dark background
-            vec3 color2 = vec3(0.25, 0.1, 0.4); // Muted Purple
-            vec3 color3 = vec3(0.1, 0.15, 0.45); // Muted Blue
-            vec3 color4 = vec3(0.1, 0.3, 0.3);   // Muted Teal/Green
+            // Define colors for a dark, sunset-purple theme
+            vec3 color1 = vec3(0.05, 0.03, 0.10); // Very dark violet
+            vec3 color2 = vec3(0.3, 0.1, 0.4);    // Deep purple
+            vec3 color3 = vec3(0.15, 0.1, 0.35);  // Dark blue-purple
+            vec3 color4 = vec3(0.45, 0.15, 0.3);  // Reddish/magenta purple
 
             float f = 0.0;
 
