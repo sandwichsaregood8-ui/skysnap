@@ -134,20 +134,6 @@ export default function MyDevicesPage() {
         altitude: string;
     } | null>(null);
 
-    useEffect(() => {
-        // Simulate connecting to a node and fetching data
-        const timer = setTimeout(() => {
-            setDevice({
-                status: 'connected',
-                name: 'SkySnap Node 1',
-                signal: 'Strong',
-                altitude: '1,240m'
-            });
-        }, 2000); // 2-second delay to simulate connection
-
-        return () => clearTimeout(timer);
-    }, []);
-
     return (
         <div className="p-6 md:p-12 h-screen overflow-y-auto">
              <div className="ambient-bg"></div>
