@@ -10,12 +10,9 @@ export default function AddDevicePage() {
     return (
         <div className="sine-bg min-h-screen flex flex-col items-center justify-center p-6 relative">
              <header className="fixed top-0 left-0 w-full z-50">
-                <div className="flex items-center justify-between px-6 h-20 w-full max-w-md mx-auto">
+                <div className="flex items-center justify-start px-6 h-20 w-full max-w-md mx-auto">
                     <button onClick={() => router.back()} className="hover:bg-primary/10 transition-colors active:scale-95 duration-200 p-2 rounded-full">
                         <span className="material-symbols-outlined text-primary">arrow_back</span>
-                    </button>
-                    <button onClick={() => toast({ title: 'Setup Help', description: 'Follow the on-screen instructions to connect your SkySnap device to its setup network.' })} className="hover:bg-primary/10 transition-colors active:scale-95 duration-200 p-2 rounded-full">
-                        <span className="material-symbols-outlined text-primary">help</span>
                     </button>
                 </div>
             </header>
