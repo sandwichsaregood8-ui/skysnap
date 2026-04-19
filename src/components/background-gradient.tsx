@@ -25,6 +25,7 @@ export function BackgroundGradient() {
     // The user wants a sine wave with static and dynamic properties.
     // I will combine a main, slow-moving sine wave with faster, smaller waves
     // and use FBM noise to create a textured, atmospheric effect.
+    // Making the waves much wider and bolder.
     const fragmentSource = `
         precision highp float;
         uniform float u_time;
@@ -63,20 +64,20 @@ export function BackgroundGradient() {
             float aspect = u_resolution.x / u_resolution.y;
             uv.x *= aspect;
 
-            float time = u_time * 0.2;
+            float time = u_time * 0.1; // Slow down time for a more majestic feel
 
-            // Static component: A wider, gentle sine wave shaping the background
-            float static_wave = sin(uv.y * 1.0 + 1.5) * 0.3;
+            // Static component: A VERY wide, gentle sine wave shaping the background
+            float static_wave = sin(uv.y * 0.3 + 1.5) * 0.4;
 
-            // Dynamic component: Wider, faster moving, smaller waves for shimmer
-            float dynamic_wave1 = sin(uv.x * 5.0 + time) * 0.03;
-            float dynamic_wave2 = cos(uv.y * 7.0 - time * 1.5) * 0.02;
+            // Dynamic component: Wider, slower moving waves for shimmer
+            float dynamic_wave1 = sin(uv.x * 0.5 + time) * 0.1;
+            float dynamic_wave2 = cos(uv.y * 0.8 - time * 0.5) * 0.08;
 
             // Combine the waves to distort the y-coordinate
             float final_y = uv.y + static_wave + dynamic_wave1 + dynamic_wave2;
 
-            // Use noise for a smoky/aurora texture, animated over time
-            vec2 noise_coord = vec2(uv.x * 1.0, final_y * 1.5 - time * 0.05);
+            // Use noise for a smoky/aurora texture, animated over time, with wider features
+            vec2 noise_coord = vec2(uv.x * 0.7, final_y * 1.0 - time * 0.05);
             float n = fbm(noise_coord);
 
             // Color palette based on the app's theme, now with blue
@@ -85,20 +86,20 @@ export function BackgroundGradient() {
             vec3 color3 = vec3(0.176, 0.831, 0.749); // Accent teal
             vec3 color_blue = vec3(0.2, 0.3, 0.85); // Added blue
 
-            // Mix colors based on the noise and wave patterns
-            vec3 color = mix(color1, color2, smoothstep(0.3, 0.55, n));
+            // Mix colors based on the noise and wave patterns - bolder transition
+            vec3 color = mix(color1, color2, smoothstep(0.4, 0.55, n));
             
-            // Add a highlight from another sine wave for more visual interest, incorporating blue
-            float highlight = sin(final_y * 20.0 + time * 0.5) * 0.5 + 0.5;
-            highlight = pow(highlight, 8.0);
+            // Add a highlight from another wider sine wave for more visual interest
+            float highlight = sin(final_y * 10.0 + time * 0.5) * 0.5 + 0.5;
+            highlight = pow(highlight, 6.0);
             
-            vec3 highlight_color = mix(color3, color_blue, sin(uv.x * 3.0 + time) * 0.5 + 0.5);
-            color += highlight_color * highlight * 0.4;
+            vec3 highlight_color = mix(color3, color_blue, sin(uv.x * 1.0 + time) * 0.5 + 0.5);
+            color += highlight_color * highlight * 0.6;
             
-            // Add a different layer of blue waves
-            float blue_wave = sin(uv.y * 5.0 - time * 0.4) * 0.5 + 0.5;
-            blue_wave = pow(blue_wave, 5.0);
-            color = mix(color, color_blue, blue_wave * 0.2);
+            // Add a different layer of WIDE blue waves
+            float blue_wave = sin(uv.y * 1.0 - time * 0.2) * 0.5 + 0.5;
+            blue_wave = pow(blue_wave, 4.0);
+            color = mix(color, color_blue, blue_wave * 0.3);
 
 
             // Add some fine-grained noise for a bit of grain
