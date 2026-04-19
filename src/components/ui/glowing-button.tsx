@@ -16,8 +16,8 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
             )}
             {...props}
         >
-            {/* The rotating gradient background, now inside the button */}
-            <div className="absolute inset-[-100%] w-[300%] h-[300%] animate-[spin_8s_linear_infinite] bg-[conic-gradient(from_90deg_at_50%_50%,#7C3AED_0%,#D2BBFF_50%,#7C3AED_100%)]" />
+            {/* The gaseous gradient background */}
+            <div className="absolute inset-0 animate-gassy-flow bg-[linear-gradient(45deg,#7C3AED,#D2BBFF,#7dd3fc,#c4b5fd,#7C3AED)] bg-[size:400%_400%]" />
             
             {/* Dark overlay to tone it down and provide the base color */}
             <div className="absolute inset-0 bg-black/70" />
