@@ -3,7 +3,6 @@
 import { cn } from '@/lib/utils';
 import React from 'react';
 
-// This component creates a dynamic, blurred background effect with rotating orbs of color.
 const GassyBackground = () => {
     // A curated list of "balls" with theme-approriate colors.
     // Durations and sizes are varied for a more organic, gaseous feel.
@@ -16,39 +15,67 @@ const GassyBackground = () => {
         { color: 'hsl(var(--accent))', i: '11px', d: '3.3s' },
         { color: '#3e3c8f', i: '17px', d: '5.5s' },
         { color: '#d2bbff', i: '13px', d: '6.7s' },
+        { color: 'hsl(var(--primary))', i: '19px', d: '8.2s' },
+        { color: 'hsl(var(--accent))', i: '15px', d: '9.1s' },
+        { color: '#3e3c8f', i: '14px', d: '4.2s' },
+        { color: '#d2bbff', i: '16px', d: '5.8s' },
+        { color: 'hsl(var(--primary))', i: '10px', d: '7.3s' },
+        { color: 'hsl(var(--accent))', i: '18px', d: '6.4s' },
+        { color: '#3e3c8f', i: '20px', d: '10s' },
+        { color: '#d2bbff', i: '12px', d: '3.7s' },
+        { color: 'hsl(var(--primary))', i: '11px', d: '2.6s' },
+        { color: 'hsl(var(--accent))', i: '17px', d: '6.9s' },
+        { color: '#3e3c8f', i: '13px', d: '5.3s' },
+        { color: '#d2bbff', i: '19px', d: '7.7s' },
     ];
 
     return (
         <>
             <div className="absolute inset-0 w-full h-full overflow-hidden rounded-full">
-                {/* 
-                  The container is scaled and positioned to ensure the blurred balls
-                  fill the button's background area effectively.
-                */}
-                <div className="relative w-[300px] h-[300px] -translate-x-1/2 left-1/2 scale-75">
+                <div className="container-loader">
                     {balls.map((ball, index) => (
                         <div
                             key={index}
-                            className="absolute rounded-full mix-blend-hard-light blur-[58px]"
+                            className="ball"
                             style={{
                                 '--color': ball.color,
                                 '--i': ball.i,
                                 '--d': ball.d,
-                                width: 'calc(300px + var(--i))',
-                                height: 'calc(300px + var(--i))',
-                                backgroundColor: 'var(--color)',
-                                animation: `move var(--d) linear infinite ${index % 2 === 0 ? 'reverse' : ''}`,
-                                transformOrigin: '150px'
-                            }}
+                            } as React.CSSProperties}
                         />
                     ))}
                 </div>
             </div>
-            {/* 
-              Keyframes are defined directly in a style block to keep the component
-              self-contained and avoid modifying the global tailwind config.
-            */}
+            
             <style jsx>{`
+                .container-loader {
+                    --size: 300px;
+                    width: var(--size);
+                    height: var(--size);
+                    position: absolute;
+                    top: 50%;
+                    left: 50%;
+                    transform: translate(-50%, -50%);
+                    zoom: 0.5;
+                }
+
+                .ball {
+                    position: absolute;
+                    width: calc(var(--size) + var(--i));
+                    height: calc(var(--size) + var(--i));
+                    background-color: var(--color);
+                    border-radius: 50%;
+                    animation: move 5s linear infinite;
+                    transform-origin: var(--size);
+                    mix-blend-mode: hard-light;
+                    animation-duration: var(--d);
+                    filter: blur(58px);
+                }
+
+                .container-loader :global(.ball:nth-child(even)) {
+                    animation-direction: reverse;
+                }
+
                 @keyframes move {
                     0% {
                         transform: rotate(0deg);
@@ -60,7 +87,7 @@ const GassyBackground = () => {
             `}</style>
         </>
     );
-}
+};
 
 interface GlowingButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     children: React.ReactNode;
@@ -70,16 +97,12 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
     return (
         <button
             className={cn(
-                "group relative w-full h-[48px] flex items-center justify-center rounded-full transition-transform active:scale-95 duration-200 overflow-hidden",
+                "group relative w-full h-[48px] flex items-center justify-center rounded-full transition-transform active:scale-95 duration-200 overflow-hidden bg-black",
                 className
             )}
             {...props}
         >
-            
-            {/* The gaseous, moving background */}
             <GassyBackground />
-
-            {/* Text content */}
             <span
                 className="relative z-10 text-white font-medium text-[16px] tracking-tight opacity-90 group-hover:opacity-100 transition-opacity"
             >
