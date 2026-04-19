@@ -94,7 +94,7 @@ export function BackgroundGradient() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
             float time = u_time * 0.1;
 
-            vec3 p = vec3(uv * 1.5, time);
+            vec3 p = vec3(uv, time);
             float noise = fbm(p);
             
             // Dilute the fractal by remapping its range.
