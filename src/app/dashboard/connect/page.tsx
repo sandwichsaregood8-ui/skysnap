@@ -42,22 +42,22 @@ export default function ConnectPage() {
       });
 
       toast({
-        title: 'Device Found',
-        description: `${device.name || 'Unknown Device'} is ready to connect.`,
+        title: 'Device Paired',
+        description: `Added ${device.name || 'Unknown Device'} to your list.`,
       });
 
     } catch (error) {
       if (error instanceof Error && error.name === 'NotFoundError') {
         toast({
-          title: 'Scan Stopped',
-          description: 'No new device was selected.',
+          title: 'Pairing Cancelled',
+          description: 'You did not select a device to pair.',
         });
       } else {
         console.error('Bluetooth Error:', error);
         toast({
           variant: 'destructive',
-          title: 'Bluetooth Error',
-          description: 'Could not scan for devices. Please ensure Bluetooth is enabled and try again.',
+          title: 'Pairing Error',
+          description: 'Could not add device. Please ensure Bluetooth is enabled and try again.',
         });
       }
     } finally {
@@ -106,22 +106,22 @@ export default function ConnectPage() {
                  </div>
                </div>
               <button onClick={handleScanClick} disabled={isScanning} className="w-full py-3 px-6 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container-highest text-on-surface font-bold text-base tracking-tight border border-outline-variant/20 shadow-lg hover:brightness-110 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
-                {isScanning ? 'Scanning...' : 'Scan for Devices'}
+                {isScanning ? 'Waiting for device...' : 'Add a Device'}
               </button>
             </div>
           </div>
         </section>
         <section className="relative z-10 space-y-4">
           <div className="flex items-center justify-between mb-2">
-            <h3 className="text-[11px] uppercase tracking-[0.12em] font-bold text-on-surface-variant/80">Discovered Nearby</h3>
+            <h3 className="text-[11px] uppercase tracking-[0.12em] font-bold text-on-surface-variant/80">Paired Devices</h3>
             {discoveredDevices.length > 0 && (
-              <span className="text-[11px] font-medium text-primary">{discoveredDevices.length} Found</span>
+              <span className="text-[11px] font-medium text-primary">{discoveredDevices.length} Paired</span>
             )}
           </div>
 
           {discoveredDevices.length === 0 && !isScanning && (
             <div className="text-center py-8">
-              <p className="text-sm text-on-surface-variant/70">No devices found yet. Click "Scan for Devices" to begin.</p>
+              <p className="text-sm text-on-surface-variant/70">No devices paired. Click 'Add a Device' to start.</p>
             </div>
           )}
 
