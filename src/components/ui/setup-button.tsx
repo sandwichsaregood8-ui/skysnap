@@ -10,8 +10,8 @@ export function SetupButton() {
   };
 
   return (
-    <button className="gradient-button" onClick={handleClick}>
-        <span className="gradient-text">Set up or add new device</span>
+    <button className="button-88" onClick={handleClick}>
+        <span className="button-88-text">Set up or add new device</span>
     </button>
   );
 }

@@ -354,7 +354,7 @@
   }
 }
 
-.gradient-button {
+.button-88 {
   position: relative;
   padding: 48px;
   font-size: 24px;
@@ -367,7 +367,7 @@
   overflow: hidden;
 }
 
-.gradient-button::before {
+.button-88::before {
   content: "";
   position: absolute;
   top: -50%;
@@ -386,7 +386,7 @@
   filter: blur(10px);
 }
 
-.gradient-button::after {
+.button-88::after {
   content: "";
   position: absolute;
   inset: 3px;
@@ -396,7 +396,7 @@
   filter: blur(5px);
 }
 
-.gradient-text {
+.button-88-text {
   color: transparent;
   background: conic-gradient(
     from 0deg,
