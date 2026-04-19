@@ -4,6 +4,7 @@ import { useEffect, useRef } from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Plus, Menu, Video } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 const ShaderCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -125,6 +126,7 @@ const ShaderCanvas = () => {
 
 export default function MyDevicesPage() {
     const { toggleSidebar } = useSidebar();
+    const router = useRouter();
 
     return (
         <div className="p-6 md:p-12 h-screen overflow-y-auto">
@@ -181,7 +183,11 @@ export default function MyDevicesPage() {
                 </div>
 
                 <div className="h-full flex flex-col">
-                    <Button variant="outline" className="group relative flex flex-col items-center justify-center gap-4 w-full aspect-square lg:aspect-auto lg:h-[480px] rounded-[2rem] border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all duration-300 overflow-hidden p-8 h-auto">
+                    <Button 
+                        onClick={() => router.push('/dashboard/connect')}
+                        variant="outline" 
+                        className="group relative flex flex-col items-center justify-center gap-4 w-full aspect-square lg:aspect-auto lg:h-[480px] rounded-[2rem] border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all duration-300 overflow-hidden p-8 h-auto"
+                    >
                         <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary-container/30 border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
                             <Plus className="text-4xl text-white" />
