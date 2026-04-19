@@ -57,11 +57,11 @@ export function SetupButton() {
           padding: 3px;
           border: none;
           cursor: pointer;
-          border-radius: 50px;
+          border-radius: 24px;
           background: transparent;
           overflow: hidden;
-          width: 220px;
-          height: 64px;
+          width: 100%;
+          height: 120px;
           transition: transform 0.2s ease;
         }
 
@@ -79,7 +79,7 @@ export function SetupButton() {
           width: 100%;
           height: 100%;
           overflow: hidden;
-          border-radius: 50px;
+          border-radius: 24px;
         }
 
         .orb {
@@ -92,7 +92,7 @@ export function SetupButton() {
           left: 50%;
           transform-origin: 0 0;
           mix-blend-mode: hard-light;
-          filter: blur(18px);
+          filter: blur(45px);
           animation: orb-move var(--d) linear infinite;
         }
 
@@ -101,15 +101,15 @@ export function SetupButton() {
         }
 
         @keyframes orb-move {
-          0% { transform: translate(-50%, -50%) rotate(0deg) translateX(30px); }
-          100% { transform: translate(-50%, -50%) rotate(360deg) translateX(30px); }
+          0% { transform: translate(-50%, -50%) rotate(0deg) translateX(60px); }
+          100% { transform: translate(-50%, -50%) rotate(360deg) translateX(60px); }
         }
 
         .button-inner {
           position: absolute;
           inset: 3px;
-          background: #050505;
-          border-radius: 47px;
+          background: rgba(5, 5, 20, 0.85);
+          border-radius: 21px;
           display: flex;
           align-items: center;
           justify-content: center;
