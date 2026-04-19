@@ -1,7 +1,6 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { Button } from '@/components/ui/button';
 
 export default function AddDevicePage() {
     const router = useRouter();
@@ -45,12 +44,12 @@ export default function AddDevicePage() {
                 </div>
 
                 <div className="flex flex-col gap-6 items-center mt-12">
-                    <Button 
+                     <button
                         onClick={() => router.push('/dashboard/connect/configure')}
-                        className="w-full bg-gradient-to-br from-primary to-primary-container text-on-primary-container font-headline font-extrabold py-4 rounded-xl shadow-[0_10px_20px_-5px_rgba(124,58,237,0.4)] active:scale-[0.98] transition-all uppercase tracking-wider text-sm"
+                        className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors"
                     >
-                        I'm Connected to SkySnap-Setup
-                    </Button>
+                        Next
+                    </button>
                     <button onClick={() => router.back()} className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors">
                         Cancel Setup
                     </button>
