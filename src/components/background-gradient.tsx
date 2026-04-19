@@ -27,49 +27,31 @@ export function BackgroundGradient() {
         uniform float u_time;
         uniform vec2 u_resolution;
 
-        // Palette
-        const vec3 NAVY = vec3(0.02, 0.05, 0.12);
-        const vec3 INDIGO = vec3(0.08, 0.08, 0.28);
-        const vec3 VIOLET = vec3(0.18, 0.12, 0.45);
-        const vec3 LIGHT_VIOLET = vec3(0.35, 0.25, 0.7);
+        // Using colors from your app's theme
+        const vec3 color1 = vec3(0.043, 0.075, 0.149); // background: #0b1326
+        const vec3 color2 = vec3(0.486, 0.227, 0.929); // primary-container: #7c3aed
+        const vec3 color3 = vec3(0.824, 0.733, 1.0);   // primary: #d2bbff
+        const vec3 accentColor = vec3(0.239, 0.843, 0.878); // teal accent
 
         void main() {
             vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-            float t = u_time * 0.2; // slow down time a bit for tan
+            float t = u_time * 0.1;
 
-            // Create layered horizontal tangent waves for sharper look
-            float wave1 = (fract(tan(uv.x * 1.5 + t * 0.5)) * 2.0 - 1.0) * 0.06;
-            float wave2 = (fract(tan(uv.x * 2.5 - t * 0.7)) * 2.0 - 1.0) * 0.04;
-            float wave3 = (fract(tan(uv.x * 1.0 + t * 0.3)) * 2.0 - 1.0) * 0.1;
+            // Wide cosine wave, primarily vertical
+            float cos_wave1 = cos(uv.y * 2.0 - t) * 0.5 + 0.5;
+            vec3 color = mix(color1, color2, cos_wave1);
 
-            // Boundary positions for bands
-            float boundary1 = 0.35 + wave1;
-            float boundary2 = 0.65 + wave2;
-            float boundary3 = 0.85 + wave3;
+            // Second wide cosine wave, slightly diagonal and slower
+            float cos_wave2 = cos((uv.y * 1.5 + uv.x * 0.5) - t * 0.8) * 0.5 + 0.5;
+            color = mix(color, color3, cos_wave2 * 0.4);
 
-            // Mix colors with sharper transitions
-            vec3 color = NAVY;
+            // A subtle, wide sine wave for the accent color
+            float sin_wave_accent = sin(uv.x * 1.0 - uv.y * 0.5 + t * 1.5) * 0.5 + 0.5;
+            color = mix(color, accentColor, sin_wave_accent * 0.15);
             
-            // Indigo band
-            float mask1 = smoothstep(boundary1 - 0.05, boundary1 + 0.05, uv.y);
-            color = mix(color, INDIGO, mask1);
-
-            // Violet band
-            float mask2 = smoothstep(boundary2 - 0.1, boundary2 + 0.1, uv.y);
-            color = mix(color, VIOLET, mask2);
-
-            // Sharper, more glitch-like ripples
-            float ripple_t = t * 4.0;
-            float ripple = fract(tan(uv.x * 8.0 - uv.y * 4.0 + ripple_t));
-            float rippleMask = pow(1.0 - ripple, 12.0) * 0.15;
-            color += LIGHT_VIOLET * rippleMask;
-
-            // Add depth with vertical gradient
-            color *= mix(0.7, 1.2, uv.y);
-
-            // Vignette for focus
-            float dist = length(uv - 0.5);
-            color *= smoothstep(1.2, 0.2, dist);
+            // Add a soft vignette to focus the center
+            float vignette = 1.0 - smoothstep(0.6, 1.0, length(uv - vec2(0.5)));
+            color *= vignette * 1.1 + 0.9;
 
             gl_FragColor = vec4(color, 1.0);
         }
