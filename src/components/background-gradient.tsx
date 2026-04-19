@@ -78,11 +78,12 @@ export function BackgroundGradient() {
             return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
         }
 
-        // Fractal Brownian Motion
+        // Fractal Brownian Motion for a blurry effect
         float fbm(vec3 p) {
             float value = 0.0;
             float amplitude = 0.5;
-            for (int i = 0; i < 5; i++) {
+            // Fewer octaves for a more blurry/less detailed noise
+            for (int i = 0; i < 3; i++) {
                 value += amplitude * snoise(p);
                 p *= 2.0;
                 amplitude *= 0.5;
@@ -92,29 +93,27 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
-            float time = u_time * 0.05;
-
-            vec3 p = vec3(uv, time);
+            // Slow down time and "zoom in" to the noise pattern for a blurry/diffused effect
+            float time = u_time * 0.03;
+            vec3 p = vec3(uv * 0.4, time); // Zoom in for blur effect
             float noise = fbm(p);
             
-            // Dilute the fractal by remapping its range.
-            noise = (noise + 1.0) * 0.5; // Map from [-1, 1] to [0, 1]
+            noise = (noise + 1.0) * 0.5;
 
-            // Define colors: Deep navy, moody orchid, and a deeper light blue
-            vec3 color_bg = vec3(0.05, 0.05, 0.2);
-            vec3 color1 = vec3(0.4, 0.2, 0.5);
-            vec3 color2 = vec3(0.2, 0.4, 0.7);
+            // Colors from the app theme (dark mode)
+            vec3 color_bg = vec3(0.043, 0.075, 0.149); // background: hsl(223, 62%, 10%)
+            vec3 color1 = vec3(0.243, 0.235, 0.561); // secondary-container: #3e3c8f
+            vec3 color2 = vec3(0.486, 0.227, 0.929); // primary-container: #7c3aed
 
-            // Mix colors based on the diluted fractal noise
-            // This creates soft transitions between the colors
-            vec3 color = mix(color_bg, color1, smoothstep(0.3, 0.55, noise));
-            color = mix(color, color2, smoothstep(0.5, 0.7, noise));
+            // Mix colors for a soft, diffused look
+            vec3 color = mix(color_bg, color1, smoothstep(0.4, 0.6, noise));
+            color = mix(color, color2, smoothstep(0.55, 0.75, noise));
 
-            // Add grain for a more analog/randomized feel
-            color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.04;
+            // Add subtle grain
+            color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.02;
 
-            // Apply a vignette effect
-            color *= 1.0 - length(uv) * 0.7;
+            // Apply a soft vignette
+            color *= 1.0 - length(uv) * 0.4;
             
             gl_FragColor = vec4(color, 1.0);
         }
