@@ -83,8 +83,7 @@ export function BackgroundGradient() {
 
             // Wave calculation based on x for forward movement
             // The fbm adds distortion to the wave
-            // Increased amplitude of distortion from 0.05 to 0.1
-            float x = p.x + fbm(p*0.5 + t*0.1) * 0.1; 
+            float x = p.x + fbm(p*0.5 + t*0.1) * 0.05; 
 
             // Create multiple waves with different frequencies and speeds for a more complex aurora
             float wave1 = 1.0 - abs(sin(x * 5.0 - t));
@@ -102,8 +101,8 @@ export function BackgroundGradient() {
             // Mix colors
             vec3 aurora_color = mix(purple, teal, noise_texture);
             
-            // Apply the thin wave as a mask. Increased multiplier from 1.2 to 1.5 for higher crests.
-            color = mix(color, aurora_color, combined_wave * 1.5);
+            // Apply the thin wave as a mask.
+            color = mix(color, aurora_color, combined_wave * 1.0);
 
             // Reduce stars significantly
             float stars = pow(noise(p * 300.0), 30.0);
