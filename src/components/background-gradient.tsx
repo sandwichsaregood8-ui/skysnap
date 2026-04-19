@@ -81,9 +81,9 @@ export function BackgroundGradient() {
 
             // Create a flowing, distorted coordinate space for the aurora
             vec2 pos = uv;
-            pos.y *= 1.4; // Stretch the noise vertically
-            pos.x *= 0.7; // Stretch the noise horizontally
-            float f = fbm(pos * 1.2 + vec2(0.0, t * -0.3));
+            pos.x *= 1.4; // Stretch the noise horizontally
+            pos.y *= 0.7; // Compress the noise vertically
+            float f = fbm(pos * 1.2 + vec2(t * -0.3, 0.0));
             
             // Create the main aurora shape from the noise, making it a wide band
             float aurora_shape = smoothstep(0.45, 0.6, f) - smoothstep(0.6, 0.7,f);
@@ -94,18 +94,12 @@ export function BackgroundGradient() {
             vec3 cyan = vec3(0.1, 0.7, 0.7);
 
             // Layer the colors based on another noise pattern to create variety within the band
-            float color_noise = fbm(uv * 3.0 + vec2(0.0, t * 0.2));
+            float color_noise = fbm(uv * 3.0 + vec2(t * 0.2, 0.0));
             vec3 aurora_color = mix(purple, blue, smoothstep(0.4, 0.6, color_noise));
             aurora_color = mix(aurora_color, cyan, smoothstep(0.55, 0.7, color_noise));
 
             // Combine shape and color
             final_color += aurora_color * aurora_shape * 1.2;
-            
-            // Add faint dot grid on top
-            vec2 grid_uv = fract(gl_FragCoord.xy / 8.0);
-            float dot_dist = distance(grid_uv, vec2(0.5));
-            float dots = 1.0 - smoothstep(0.4, 0.45, dot_dist);
-            final_color += dots * 0.04;
 
             // Vignette to darken the edges
             final_color *= smoothstep(1.3, 0.35, length(uv - vec2(0.5)));
