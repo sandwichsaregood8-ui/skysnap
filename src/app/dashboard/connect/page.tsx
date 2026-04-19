@@ -1,8 +1,50 @@
 "use client"
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
+import { useToast } from '@/hooks/use-toast';
 
 export default function ConnectPage() {
   const router = useRouter();
+  const [isScanning, setIsScanning] = useState(false);
+  const { toast } = useToast();
+
+  const handleScanClick = async () => {
+    if (typeof navigator === 'undefined' || !navigator.bluetooth) {
+      toast({
+        variant: 'destructive',
+        title: 'Bluetooth Not Supported',
+        description: 'This feature requires a browser with Bluetooth support.',
+      });
+      return;
+    }
+
+    setIsScanning(true);
+    try {
+      await navigator.bluetooth.requestDevice({
+        acceptAllDevices: true,
+      });
+      toast({
+        title: 'Device Connected',
+        description: 'Ready to configure your device.',
+      });
+    } catch (error) {
+      if (error instanceof Error && error.name === 'NotFoundError') {
+        toast({
+          variant: 'destructive',
+          title: 'Scan Cancelled',
+          description: 'No device was selected.',
+        });
+      } else {
+        toast({
+          variant: 'destructive',
+          title: 'Bluetooth Error',
+          description: 'Could not scan for devices. Please ensure Bluetooth is enabled.',
+        });
+      }
+    } finally {
+      setIsScanning(false);
+    }
+  };
 
   return (
     <div style={{ minHeight: 'max(884px, 100dvh)' }} className="bg-background text-on-background font-body selection:bg-primary/30" data-mode="connect">
@@ -35,14 +77,17 @@ export default function ConnectPage() {
         <section className="relative z-10 mb-12">
           <div className="neon-border group">
             <div className="bg-surface-container-lowest rounded-[1.4rem] flex flex-col items-center justify-center text-center p-6">
-              <div className="relative mb-5">
-                <div className="absolute inset-0 bg-surface-bright/10 rounded-full blur-xl animate-pulse"></div>
-                <div className="relative w-16 h-16 rounded-full bg-gradient-to-br from-surface-bright/20 to-surface-container-highest/40 flex items-center justify-center border border-outline-variant/20 shadow-[0_0_20px_rgba(49,57,78,0.2)]">
-                  <span className="material-symbols-outlined text-on-surface text-3xl" data-weight="fill">bluetooth</span>
-                </div>
-              </div>
-              <button className="w-full py-3 px-6 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container-highest text-on-surface font-bold text-base tracking-tight border border-outline-variant/20 shadow-lg hover:brightness-110 active:scale-95 transition-all duration-300">
-                Scan for Devices
+              <div className="relative mb-5 flex items-center justify-center w-16 h-16">
+                 <div className="absolute inset-0 bg-surface-bright/10 rounded-full blur-xl animate-pulse"></div>
+                 {isScanning && (
+                    <div className="absolute inset-[-3px] animate-spin rounded-full bg-gradient-to-r from-blue-400 to-cyan-400"></div>
+                 )}
+                 <div className="relative w-full h-full rounded-full bg-gradient-to-br from-surface-bright/20 to-surface-container-highest/40 flex items-center justify-center border border-outline-variant/20 shadow-[0_0_20px_rgba(49,57,78,0.2)]">
+                   <span className="material-symbols-outlined text-on-surface text-3xl" data-weight="fill">bluetooth</span>
+                 </div>
+               </div>
+              <button onClick={handleScanClick} className="w-full py-3 px-6 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container-highest text-on-surface font-bold text-base tracking-tight border border-outline-variant/20 shadow-lg hover:brightness-110 active:scale-95 transition-all duration-300">
+                {isScanning ? 'Scanning...' : 'Scan for Devices'}
               </button>
             </div>
           </div>
