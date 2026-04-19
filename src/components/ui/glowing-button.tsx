@@ -17,10 +17,10 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
             {...props}
         >
             {/* The gaseous gradient background */}
-            <div className="absolute inset-0 animate-gassy-flow bg-[linear-gradient(45deg,#7C3AED,#D2BBFF,#7dd3fc,#c4b5fd,#7C3AED)] bg-[size:400%_400%]" />
+            <div className="absolute inset-0 animate-gassy-flow bg-[linear-gradient(45deg,hsl(var(--primary)),theme(colors.primary-container),hsl(var(--secondary)),hsl(var(--primary)))] bg-[size:400%_400%]" />
             
             {/* Dark overlay to tone it down and provide the base color */}
-            <div className="absolute inset-0 bg-black/70" />
+            <div className="absolute inset-0 bg-black/60" />
             
             {/* Sheen and shadow effects */}
             <div
