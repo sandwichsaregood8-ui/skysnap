@@ -143,7 +143,6 @@ export default function GalleryPage() {
                         <div className="absolute inset-0 bg-gradient-to-t from-surface-container-lowest/90 via-transparent to-transparent"></div>
                         <div className="absolute bottom-6 left-6">
                             <p className="text-xs font-bold tracking-[0.1em] text-primary mb-1 uppercase">Deep Sky</p>
-                            <h3 className="text-2xl font-bold tracking-tight">The Helix Nebula Core</h3>
                         </div>
                     </div>
                     <div className="md:col-span-4 group relative rounded-3xl overflow-hidden aspect-square shadow-2xl transition-transform duration-500 hover:scale-[1.01]">
