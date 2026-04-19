@@ -382,12 +382,10 @@
   background: conic-gradient(
     from 0deg,
     hsl(var(--primary)),
-    hsl(var(--accent)),
     hsl(var(--secondary)),
     hsl(var(--primary))
   );
   z-index: -2;
-  filter: blur(15px);
   animation: rotate-border 4s linear infinite;
 }
 
@@ -398,7 +396,6 @@
   background: hsl(var(--background));
   border-radius: calc(1.5rem - 3px);
   z-index: -1;
-  filter: blur(5px);
 }
 
 .gradient-text {
@@ -406,17 +403,11 @@
   background: conic-gradient(
     from 0deg,
     hsl(var(--primary)),
-    hsl(var(--accent)),
     hsl(var(--secondary)),
     hsl(var(--primary))
   );
   background-clip: text;
   -webkit-background-clip: text;
-  filter: hue-rotate(0deg);
-}
-
-.gradient-button:hover .gradient-text {
-  animation: hue-rotating 2s linear infinite;
 }
 
 .gradient-button:active {
