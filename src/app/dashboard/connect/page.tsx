@@ -40,15 +40,11 @@ export default function AddDevicePage() {
                     </div>
                     <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full border-2 border-primary/20 bg-surface-container text-primary font-bold text-sm">3</div>
-                        <p className="text-on-surface-variant pt-1">Connect to the network named <span className="font-bold text-on-surface">SkySnap-Setup</span>.</p>
+                        <p className="text-on-surface-variant pt-1">Connect to the network named <span className="font-bold text-on-surface inline-flex items-center gap-2">SkySnap-Setup<span className="material-symbols-outlined text-primary/70 text-lg">wifi</span></span>.</p>
                     </div>
                 </div>
 
-                <div className="my-8 flex justify-center">
-                    <span className="material-symbols-outlined text-6xl text-primary/30">wifi</span>
-                </div>
-
-                <div className="flex flex-col gap-6 items-center">
+                <div className="flex flex-col gap-6 items-center mt-12">
                     <GlowingButton onClick={() => router.push('/dashboard/connect/configure')}>
                         I'm Connected to SkySnap-Setup
                     </GlowingButton>
