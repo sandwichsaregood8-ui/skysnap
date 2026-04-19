@@ -72,7 +72,7 @@ export function BackgroundGradient() {
             vec2 p = centered_uv + vec2(0.5, 0.5);
             p.x /= aspectRatio;
 
-            float t = u_time * 0.15; // Slightly faster forward movement
+            float t = u_time * 0.15; // Forward movement
 
             // Base color
             vec3 color = vec3(0.01, 0.02, 0.08); // Dark space blue
@@ -81,18 +81,18 @@ export function BackgroundGradient() {
             vec3 purple = vec3(0.48, 0.18, 0.98);
             vec3 teal = vec3(0.18, 0.98, 0.78);
 
-            // Wave calculation based on x for forward movement
+            // Wave calculation based on y for horizontal bands
             // The fbm adds distortion to the wave
-            float x = p.x + fbm(p*0.5 + t*0.1) * 0.05; 
+            float y = p.y + fbm(p*0.5 + t*0.1) * 0.05; 
 
-            // Create multiple waves with different frequencies and speeds for a more complex aurora
-            float wave1 = 1.0 - abs(sin(x * 2.5 - t));
-            wave1 = pow(wave1, 20.0);
+            // Create multiple horizontal waves with different frequencies and speeds
+            float wave1 = 1.0 - abs(sin(y * 8.0 - t));
+            wave1 = pow(wave1, 15.0);
 
-            float wave2 = 1.0 - abs(sin(x * 3.5 - t * 1.2));
-            wave2 = pow(wave2, 25.0);
+            float wave2 = 1.0 - abs(sin(y * 12.0 - t * 1.2));
+            wave2 = pow(wave2, 18.0);
 
-            // Combining waves to create higher crests
+            // Combining waves
             float combined_wave = wave1 * 0.6 + wave2 * 0.4;
 
             // Detailed noise for texture and movement
@@ -101,8 +101,8 @@ export function BackgroundGradient() {
             // Mix colors
             vec3 aurora_color = mix(purple, teal, noise_texture);
             
-            // Apply the thin wave as a mask.
-            color = mix(color, aurora_color, combined_wave * 0.3);
+            // Apply the wave as a mask, making it more intense
+            color = mix(color, aurora_color, combined_wave * 0.6);
 
             // Reduce stars significantly
             float stars = pow(noise(p * 300.0), 30.0);
