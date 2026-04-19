@@ -356,14 +356,14 @@
 
 .gradient-button {
   position: relative;
-  padding: 24px 48px;
+  padding: 48px;
   font-size: 24px;
   font-weight: bold;
   color: white;
   background: transparent;
   border: none;
   cursor: pointer;
-  border-radius: 50px;
+  border-radius: 1.5rem;
   overflow: hidden;
   transition: transform 0.2s ease;
 }
@@ -382,18 +382,13 @@
   background: conic-gradient(
     from 0deg,
     hsl(var(--primary)),
-    #7c3aed,
+    hsl(var(--accent)),
     hsl(var(--secondary)),
     hsl(var(--primary))
   );
   z-index: -2;
-  filter: blur(10px);
-  transform: rotate(0deg);
-  transition: transform 1.5s ease-in-out;
-}
-
-.gradient-button:hover::before {
-  transform: rotate(180deg);
+  filter: blur(15px);
+  animation: rotate-border 4s linear infinite;
 }
 
 .gradient-button::after {
@@ -401,7 +396,7 @@
   position: absolute;
   inset: 3px;
   background: hsl(var(--background));
-  border-radius: 47px;
+  border-radius: calc(1.5rem - 3px);
   z-index: -1;
   filter: blur(5px);
 }
@@ -411,7 +406,7 @@
   background: conic-gradient(
     from 0deg,
     hsl(var(--primary)),
-    #7c3aed,
+    hsl(var(--accent)),
     hsl(var(--secondary)),
     hsl(var(--primary))
   );
