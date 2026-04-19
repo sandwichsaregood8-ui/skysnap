@@ -1,12 +1,10 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { useToast } from '@/hooks/use-toast';
 import { AuroraButton } from '@/components/ui/aurora-button';
 
 export default function AddDevicePage() {
     const router = useRouter();
-    const { toast } = useToast();
 
     return (
         <div className="sine-bg min-h-screen flex flex-col items-center justify-center p-6 relative">
@@ -52,7 +50,7 @@ export default function AddDevicePage() {
 
                 <div className="flex flex-col gap-6 items-center">
                     <AuroraButton onClick={() => router.push('/dashboard/connect/configure')}>
-                        Explore
+                        I'm Connected to SkySnap-Setup
                     </AuroraButton>
                     <button onClick={() => router.back()} className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors">
                         Cancel Setup
