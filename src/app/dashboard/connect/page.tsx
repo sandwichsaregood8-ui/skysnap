@@ -93,23 +93,6 @@ export default function ConnectPage() {
           </div>
         </section>
       </main>
-
-      <nav className="fixed bottom-0 w-full z-50 bg-[#0B1326]/90 backdrop-blur-2xl rounded-t-2xl border-t border-[#4A4455]/15 shadow-[0_-10px_40px_rgba(124,58,237,0.08)]">
-        <div className="flex justify-around items-center h-20 px-4 pb-safe w-full max-w-md mx-auto">
-          <div className="flex flex-col items-center justify-center text-[#D2BBFF] bg-[#7C3AED]/20 rounded-xl px-4 py-1 transition-all">
-            <span className="material-symbols-outlined" data-weight="fill">settings_input_antenna</span>
-            <span className="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-[0.08em] font-medium mt-1">Setup</span>
-          </div>
-          <div className="flex flex-col items-center justify-center text-[#CCC3D8]/60 hover:text-[#D2BBFF] transition-all active:scale-90 duration-300 cursor-pointer">
-            <span className="material-symbols-outlined">router</span>
-            <span className="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-[0.08em] font-medium mt-1">Devices</span>
-          </div>
-          <div className="flex flex-col items-center justify-center text-[#CCC3D8]/60 hover:text-[#D2BBFF] transition-all active:scale-90 duration-300 cursor-pointer">
-            <span className="material-symbols-outlined">cloud_done</span>
-            <span className="font-['Plus_Jakarta_Sans'] text-[10px] uppercase tracking-[0.08em] font-medium mt-1">Cloud</span>
-          </div>
-        </div>
-      </nav>
     </div>
   );
 }
