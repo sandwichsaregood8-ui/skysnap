@@ -70,38 +70,62 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = gl_FragCoord.xy/u_resolution.xy;
-            float t = u_time * 0.1;
+            // Slow down the overall animation for a more majestic feel
+            float t = u_time * 0.05;
 
-            // Background Color
-            vec3 final_color = vec3(0.005, 0.005, 0.015); // Deep space blue
+            // Background Color - darker sky
+            vec3 final_color = vec3(0.01, 0.02, 0.05);
 
-            // Define the aurora colors
-            vec3 purple = vec3(0.4, 0.15, 0.6);
-            vec3 blue = vec3(0.1, 0.3, 0.8);
+            // Aurora Palette: Add Green and shift purple to magenta
+            vec3 green = vec3(0.1, 0.6, 0.3);
+            vec3 magenta = vec3(0.7, 0.1, 0.5);
             vec3 cyan = vec3(0.1, 0.7, 0.7);
 
-            // --- Aurora Effect ---
-            // Use FBM to create distortion for the aurora curtains
-            vec2 p = vec2(uv.x * 2.0, uv.y * 0.8);
-            vec2 q = vec2(fbm(p + t * 0.1), fbm(p + vec2(5.2, 1.3) + t * 0.15));
-            float distorted_noise = fbm(p + 4.0 * q + vec2(1.7, 9.2) + 0.15 * t );
+            // --- Main Aurora Layer ---
+            // Create vertical movement feel
+            vec2 p = uv;
+            p.y += t * 0.1; // Slow upward drift
+            p.x *= 1.5; // Stretch horizontally
 
-            // Shape the aurora with smoothstep and fade it towards the top
-            float aurora_mask = smoothstep(0.3, 0.6, distorted_noise);
-            aurora_mask *= pow(1.0 - uv.y, 2.0);
+            // FBM for the main curtain shape, slower horizontal movement
+            float noise_val = 0.0;
+            float amp = 0.6;
+            vec2 shift = vec2(100.0);
+            mat2 rot = mat2(cos(0.5), sin(0.5), -sin(0.5), cos(0.5));
+            for (int i = 0; i < 4; i++) {
+                noise_val += amp * noise(p + t*0.05);
+                p = rot * p * 2.0 + shift;
+                amp *= 0.5;
+            }
 
-            // Add another layer for more detail
-            float detail_noise = fbm(uv * 8.0 - t * 0.4);
-            aurora_mask *= smoothstep(0.5, 0.7, detail_noise) * 0.8 + 0.2;
+            // Distort the vertical coordinate to create the curtains
+            float curtain = pow(noise_val, 2.0) * (1.0 - uv.y) * 2.0;
+
+            // --- Detail Layer (faster shimmering) ---
+            vec2 p2 = uv;
+            p2.y += u_time * 0.2; // faster vertical shimmer
+            float detail_noise = 0.0;
+            amp = 0.5;
+            for (int i = 0; i < 5; i++) {
+                detail_noise += amp * noise(p2 * 5.0 - u_time * 0.1);
+                p2 = rot * p2 * 1.8;
+                amp *= 0.5;
+            }
+            curtain += pow(detail_noise, 3.0) * (1.0 - uv.y) * 0.5;
 
             // Color the aurora
-            vec3 aurora_color = mix(purple, blue, smoothstep(0.2, 0.8, uv.y + distorted_noise * 0.1));
-            aurora_color = mix(aurora_color, cyan, pow(distorted_noise, 3.0));
-            
-            final_color = mix(final_color, aurora_color, aurora_mask * 0.8);
-            
+            vec3 aurora_color = mix(green, magenta, smoothstep(0.1, 0.6, uv.y + detail_noise * 0.1));
+            aurora_color = mix(aurora_color, cyan, pow(curtain, 2.5));
+
+            // Apply the curtain mask
+            final_color = mix(final_color, aurora_color, smoothstep(0.1, 0.4, curtain) * 0.9);
+
+            // Add some faint stars
+            float stars = pow(noise(uv * 200.0), 20.0);
+            final_color += stars * 0.3;
+
             // Vignette to darken the edges
-            final_color *= smoothstep(1.3, 0.35, length(uv - vec2(0.5)));
+            final_color *= smoothstep(1.2, 0.2, length(uv - vec2(0.5)));
 
             gl_FragColor = vec4(final_color, 1.0);
         }
