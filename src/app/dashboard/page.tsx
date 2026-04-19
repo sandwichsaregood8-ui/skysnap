@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Plus, Menu, Video } from 'lucide-react';
@@ -127,6 +127,26 @@ const ShaderCanvas = () => {
 export default function MyDevicesPage() {
     const { toggleSidebar } = useSidebar();
     const router = useRouter();
+    const [device, setDevice] = useState<{
+        status: 'connected' | 'offline';
+        name: string;
+        signal: string;
+        altitude: string;
+    } | null>(null);
+
+    useEffect(() => {
+        // Simulate connecting to a node and fetching data
+        const timer = setTimeout(() => {
+            setDevice({
+                status: 'connected',
+                name: 'SkySnap Node 1',
+                signal: 'Strong',
+                altitude: '1,240m'
+            });
+        }, 2000); // 2-second delay to simulate connection
+
+        return () => clearTimeout(timer);
+    }, []);
 
     return (
         <div className="p-6 md:p-12 h-screen overflow-y-auto">
@@ -143,48 +163,52 @@ export default function MyDevicesPage() {
                 </div>
             </header>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start pb-20">
-                <div className="lg:col-span-2 relative group rounded-[2rem] luminous-card">
-                    <div className="card-inner rounded-[calc(2rem-1px)] overflow-hidden bg-surface-container-high/90 backdrop-blur-[24px]">
-                        <ShaderCanvas />
-                        <div className="absolute inset-0 bg-gradient-to-t from-surface-container-highest to-transparent z-10 pointer-events-none opacity-60"></div>
-                        <div className="relative z-20 p-8 md:p-12 h-full flex flex-col justify-between min-h-[480px]">
-                            <div className="flex justify-between items-start">
-                                <div className="inline-flex items-center gap-2 bg-primary/20 text-on-primary-container px-4 py-1.5 rounded-full backdrop-blur-md border border-primary/30">
-                                    <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
-                                    <span className="font-label text-xs tracking-widest uppercase">Active Link</span>
+                {device && (
+                    <div className="lg:col-span-2 relative group rounded-[2rem] luminous-card">
+                        <div className="card-inner rounded-[calc(2rem-1px)] overflow-hidden bg-surface-container-high/90 backdrop-blur-[24px]">
+                            <ShaderCanvas />
+                            <div className="absolute inset-0 bg-gradient-to-t from-surface-container-highest to-transparent z-10 pointer-events-none opacity-60"></div>
+                            <div className="relative z-20 p-8 md:p-12 h-full flex flex-col justify-between min-h-[480px]">
+                                <div className="flex justify-between items-start">
+                                     {device.status === 'connected' ? (
+                                        <div className="inline-flex items-center gap-2 bg-primary/20 text-on-primary-container px-4 py-1.5 rounded-full backdrop-blur-md border border-primary/30">
+                                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse"></span>
+                                            <span className="font-label text-xs tracking-widest uppercase">Connected</span>
+                                        </div>
+                                    ) : (
+                                        <div className="inline-flex items-center gap-2 bg-destructive/20 text-white px-4 py-1.5 rounded-full backdrop-blur-md border border-destructive/30">
+                                            <span className="w-2 h-2 rounded-full bg-destructive animate-pulse"></span>
+                                            <span className="font-label text-xs tracking-widest uppercase">Offline</span>
+                                        </div>
+                                    )}
                                 </div>
-                            </div>
-                            <div>
-                                <p className="font-label text-sm text-primary uppercase tracking-[0.1em] mb-2 drop-shadow-md">Primary Node</p>
-                                <h3 className="font-headline text-4xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">SkySnap Pro Alpha</h3>
-                                <div className="flex flex-wrap gap-6 mb-8">
-                                    <div className="flex flex-col">
-                                        <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Battery</span>
-                                        <span className="font-body text-xl font-semibold text-white">84%</span>
+                                <div>
+                                    <h3 className="font-headline text-4xl font-bold text-white mb-4 tracking-tight drop-shadow-lg">{device.name}</h3>
+                                    <div className="flex flex-wrap gap-6 mb-8">
+                                        <div className="flex flex-col">
+                                            <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Signal</span>
+                                            <span className="font-body text-xl font-semibold text-white">{device.signal}</span>
+                                        </div>
+                                        <div className="flex flex-col">
+                                            <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Altitude</span>
+                                            <span className="font-body text-xl font-semibold text-white">{device.altitude}</span>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Signal</span>
-                                        <span className="font-body text-xl font-semibold text-white">Strong</span>
+                                    <div className="text-center">
+                                        <Button
+                                            variant="outline"
+                                            className="w-full md:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md px-6 py-3 rounded-xl font-label text-sm uppercase tracking-widest transition-all h-auto"
+                                            onClick={() => router.push('/dashboard/gallery')}
+                                        >
+                                            <Video className="mr-2 h-4 w-4" />
+                                            view pictures taken
+                                        </Button>
                                     </div>
-                                    <div className="flex flex-col">
-                                        <span className="font-label text-[10px] text-on-surface-variant uppercase tracking-widest mb-1">Altitude</span>
-                                        <span className="font-body text-xl font-semibold text-white">1,240m</span>
-                                    </div>
-                                </div>
-                                <div className="text-center">
-                                    <Button
-                                        variant="outline"
-                                        className="w-full md:w-auto bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md px-6 py-3 rounded-xl font-label text-sm uppercase tracking-widest transition-all h-auto"
-                                        onClick={() => router.push('/dashboard/gallery')}
-                                    >
-                                        <Video className="mr-2 h-4 w-4" />
-                                        view pictures taken
-                                    </Button>
                                 </div>
                             </div>
                         </div>
                     </div>
-                </div>
+                )}
 
                 <div className="h-full flex flex-col">
                     <Button 
