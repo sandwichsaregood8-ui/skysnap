@@ -195,38 +195,8 @@ export default function MyDevicesPage() {
                         </div>
                     </div>
                 )}
-
-                <div className="h-full flex flex-col items-center justify-center">
-                    <div style={{ position: 'relative' }}>
-                      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
-                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq">
-                          <feColorMatrix
-                            values="1 0 0 0 0              0 1 0 0 0              0 0 1 0 0              0 0 0 9 0"
-                          ></feColorMatrix>
-                        </filter>
-                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq2">
-                          <feColorMatrix
-                            values="1 0 0 0 0              0 1 0 0 0              0 0 1 0 0              0 0 0 3 0"
-                          ></feColorMatrix>
-                        </filter>
-                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq3">
-                          <feColorMatrix
-                            values="1 0 0 0.2 0              0 1 0 0.2 0              0 0 1 0.2 0              0 0 0 2 0"
-                          ></feColorMatrix>
-                        </filter>
-                      </svg>
-                      <button onClick={() => router.push('/dashboard/connect')} className="real-button-large"></button>
-                      <div className="backdrop"></div>
-                      <div className="button-container-large">
-                        <div className="spin spin-blur"></div>
-                        <div className="spin spin-intense"></div>
-                        <div className="backdrop"></div>
-                        <div className="button-border-large">
-                          <div className="spin spin-inside"></div>
-                          <div className="button-large">Set up or add new device</div>
-                        </div>
-                      </div>
-                    </div>
+                 <div className="h-full flex flex-col items-center justify-center">
+                    <Button onClick={() => router.push('/dashboard/connect')}>Set up or add new device</Button>
                 </div>
             </div>
         </div>
