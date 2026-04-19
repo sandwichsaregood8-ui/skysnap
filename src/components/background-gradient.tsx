@@ -28,23 +28,18 @@ export function BackgroundGradient() {
         uniform vec2 u_resolution;
 
         float random (in vec2 _st) {
-            return fract(sin(dot(_st.xy,
-                                 vec2(12.9898,78.233)))*
-                43758.5453123);
+            return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
         }
 
         float noise (in vec2 _st) {
             vec2 i = floor(_st);
             vec2 f = fract(_st);
-
-            vec2 u = f * f * (3.0 - 2.0 * f);
-
+            vec2 u = f*f*(3.0-2.0*f);
             return mix(mix(random(i + vec2(0.0,0.0)), random(i + vec2(1.0,0.0)), u.x),
-                       mix(random(i + vec2(0.0,1.0)), random(i + vec2(1.0,1.0)), u.x),
-                       u.y);
+                        mix(random(i + vec2(0.0,1.0)), random(i + vec2(1.0,1.0)), u.x), u.y);
         }
 
-        #define NUM_OCTAVES 5
+        #define NUM_OCTAVES 3
         float fbm ( in vec2 _st) {
             float v = 0.0;
             float a = 0.5;
@@ -61,57 +56,19 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = gl_FragCoord.xy/u_resolution.xy;
-            float aspectRatio = u_resolution.x/u_resolution.y;
-            vec2 centered_uv = uv - vec2(0.5, 0.5);
-            centered_uv.x *= aspectRatio;
             
-            // Wide angle effect
-            float lens_dist = length(centered_uv);
-            centered_uv = centered_uv * (1.0 - lens_dist * 0.1);
-            
-            vec2 p = centered_uv + vec2(0.5, 0.5);
-            p.x /= aspectRatio;
+            float t = u_time * 0.05;
 
-            float t = u_time * 0.15; // Forward movement
+            vec2 p = uv * 0.5 + vec2(t * 0.1, t * 0.05);
+            float n = fbm(p);
 
-            // Base color
-            vec3 color = vec3(0.01, 0.02, 0.08); // Dark space blue
+            vec3 base_color = vec3(0.04, 0.04, 0.12);
+            vec3 glow_color = vec3(0.08, 0.07, 0.2);
 
-            // Color Palette (no pink)
-            vec3 purple = vec3(0.48, 0.18, 0.98);
-            vec3 teal = vec3(0.18, 0.98, 0.78);
-            
-            // SELF-REMINDER: THE WAVES CANNOT BE VERTICAL. THEY MUST BE HORIZONTAL.
-            // Wave calculation is based on y for horizontal bands.
-            // A very slow upward movement is added to the distortion coordinate.
-            vec2 fbm_coord = p * 0.5 + vec2(t * 0.1, u_time * 0.00001);
-            float y = p.y + fbm(fbm_coord) * 0.25; 
+            vec3 color = mix(base_color, glow_color, n);
 
-            // Create multiple horizontal waves with longer periods (lower frequency)
-            float wave1 = 1.0 - abs(sin(y * 4.0 - t));
-            wave1 = pow(wave1, 4.0);
-
-            float wave2 = 1.0 - abs(sin(y * 6.0 - t * 1.2));
-            wave2 = pow(wave2, 6.0);
-
-            // Combining waves
-            float combined_wave = wave1 * 0.6 + wave2 * 0.4;
-
-            // Detailed noise for texture and movement
-            float noise_texture = fbm(p * 3.0 + vec2(t * 0.3, u_time * 0.00005));
-            
-            // Mix colors
-            vec3 aurora_color = mix(purple, teal, noise_texture);
-            
-            // Apply the wave as a mask, making it more intense. Amplitude adjustment here.
-            color = mix(color, aurora_color, combined_wave * 1.2);
-
-            // Reduce stars significantly
-            float stars = pow(noise(p * 300.0), 30.0);
-            color += stars * 0.1;
-
-            // Vignette to darken edges
-            color *= smoothstep(1.2, 0.3, lens_dist);
+            float vignette = length(uv - 0.5);
+            color *= smoothstep(0.9, 0.25, vignette);
 
             gl_FragColor = vec4(color, 1.0);
         }
