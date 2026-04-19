@@ -86,10 +86,10 @@ export function BackgroundGradient() {
             float x = p.x + fbm(p*0.5 + t*0.1) * 0.05; 
 
             // Create multiple waves with different frequencies and speeds for a more complex aurora
-            float wave1 = 1.0 - abs(sin(x * 5.0 - t));
+            float wave1 = 1.0 - abs(sin(x * 2.5 - t));
             wave1 = pow(wave1, 20.0);
 
-            float wave2 = 1.0 - abs(sin(x * 7.0 - t * 1.2));
+            float wave2 = 1.0 - abs(sin(x * 3.5 - t * 1.2));
             wave2 = pow(wave2, 25.0);
 
             // Combining waves to create higher crests
@@ -102,7 +102,7 @@ export function BackgroundGradient() {
             vec3 aurora_color = mix(purple, teal, noise_texture);
             
             // Apply the thin wave as a mask.
-            color = mix(color, aurora_color, combined_wave * 1.0);
+            color = mix(color, aurora_color, combined_wave * 0.3);
 
             // Reduce stars significantly
             float stars = pow(noise(p * 300.0), 30.0);
