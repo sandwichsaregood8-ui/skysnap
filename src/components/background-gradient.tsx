@@ -92,7 +92,7 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
-            float time = u_time * 0.1;
+            float time = u_time * 0.05;
 
             vec3 p = vec3(uv, time);
             float noise = fbm(p);
