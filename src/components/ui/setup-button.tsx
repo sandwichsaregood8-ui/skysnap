@@ -14,26 +14,12 @@ export function SetupButton() {
       <button className="fusion-button" onClick={handleClick}>
         <div className="orbs-container">
           {[
-            { color: "#ff6347", i: 12, d: 3.4 },
-            { color: "#00ced1", i: 18, d: 6.1 },
-            { color: "#adff2f", i: 10, d: 2.9 },
-            { color: "#9370db", i: 16, d: 7.8 },
-            { color: "#ff1493", i: 14, d: 4.6 },
-            { color: "#00bfff", i: 11, d: 3.3 },
-            { color: "#7fff00", i: 17, d: 5.5 },
-            { color: "#dc143c", i: 13, d: 6.7 },
-            { color: "#8a2be2", i: 19, d: 8.2 },
-            { color: "#48d1cc", i: 15, d: 9.1 },
-            { color: "#ff4500", i: 14, d: 4.2 },
-            { color: "#00ff7f", i: 16, d: 5.8 },
-            { color: "#ba55d3", i: 10, d: 7.3 },
-            { color: "#1e90ff", i: 18, d: 6.4 },
-            { color: "#ffa500", i: 20, d: 10 },
-            { color: "#ff69b4", i: 12, d: 3.7 },
-            { color: "#00fa9a", i: 11, d: 2.6 },
-            { color: "#9400d3", i: 17, d: 6.9 },
-            { color: "#ffb6c1", i: 13, d: 5.3 },
-            { color: "#20b2aa", i: 19, d: 7.7 },
+            { color: "#7c3aed", i: 12, d: 15.4 },
+            { color: "#2563eb", i: 18, d: 18.1 },
+            { color: "#0891b2", i: 10, d: 20.9 },
+            { color: "#6d28d9", i: 16, d: 12.8 },
+            { color: "#1d4ed8", i: 14, d: 16.6 },
+            { color: "#0e7490", i: 11, d: 21.3 },
           ].map((orb, idx) => (
             <div
               key={idx}
@@ -57,11 +43,11 @@ export function SetupButton() {
           padding: 3px;
           border: none;
           cursor: pointer;
-          border-radius: 24px;
+          border-radius: 32px;
           background: transparent;
           overflow: hidden;
-          width: 100%;
-          height: 120px;
+          width: 280px;
+          height: 240px;
           transition: transform 0.2s ease;
         }
 
@@ -79,7 +65,7 @@ export function SetupButton() {
           width: 100%;
           height: 100%;
           overflow: hidden;
-          border-radius: 24px;
+          border-radius: 32px;
         }
 
         .orb {
@@ -92,7 +78,8 @@ export function SetupButton() {
           left: 50%;
           transform-origin: 0 0;
           mix-blend-mode: hard-light;
-          filter: blur(45px);
+          filter: blur(35px);
+          opacity: 0.6;
           animation: orb-move var(--d) linear infinite;
         }
 
@@ -109,7 +96,7 @@ export function SetupButton() {
           position: absolute;
           inset: 3px;
           background: rgba(5, 5, 20, 0.85);
-          border-radius: 21px;
+          border-radius: 29px;
           display: flex;
           align-items: center;
           justify-content: center;
@@ -122,8 +109,7 @@ export function SetupButton() {
           color: transparent;
           background: conic-gradient(
             from 0deg,
-            #ff6b6b, #4ecdc4, #45b7d1,
-            #96ceb4, #feca57, #ff9ff3, #ff6b6b
+            #7c3aed, #2563eb, #0891b2, #6d28d9, #1d4ed8, #0e7490, #7c3aed
           );
           background-clip: text;
           -webkit-background-clip: text;
@@ -131,7 +117,7 @@ export function SetupButton() {
         }
 
         .fusion-button:hover .gradient-text {
-          animation: hue-rotating 2s linear infinite;
+          animation: hue-rotating 6s linear infinite;
         }
 
         @keyframes hue-rotating {
