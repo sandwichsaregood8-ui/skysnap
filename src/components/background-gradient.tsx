@@ -92,24 +92,23 @@ export function BackgroundGradient() {
 
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
-            float time = u_time * 0.15;
+            float time = u_time * 0.1;
 
             vec3 p = vec3(uv * 1.5, time);
             float noise = fbm(p);
             
             // Dilute the fractal by remapping its range.
-            // This creates softer, more cloud-like shapes.
             noise = (noise + 1.0) * 0.5; // Map from [-1, 1] to [0, 1]
-            noise = smoothstep(0.4, 0.6, noise);
 
-            // Define colors: navy blue, orchid purple, light blue
-            vec3 color_bg = vec3(0.0, 0.0, 0.128);    // Navy Blue
-            vec3 color1 = vec3(0.85, 0.44, 0.84);   // Orchid Purple
-            vec3 color2 = vec3(0.68, 0.85, 0.90);   // Light Blue
+            // Define colors: Deep navy, moody orchid, and a deeper light blue
+            vec3 color_bg = vec3(0.05, 0.05, 0.2);
+            vec3 color1 = vec3(0.4, 0.2, 0.5);
+            vec3 color2 = vec3(0.2, 0.4, 0.7);
 
             // Mix colors based on the diluted fractal noise
-            vec3 color = mix(color_bg, color1, noise);
-            color = mix(color, color2, pow(noise, 2.5));
+            // This creates soft transitions between the colors
+            vec3 color = mix(color_bg, color1, smoothstep(0.3, 0.55, noise));
+            color = mix(color, color2, smoothstep(0.5, 0.7, noise));
 
             // Add grain for a more analog/randomized feel
             color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.04;
