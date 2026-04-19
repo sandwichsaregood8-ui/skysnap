@@ -161,15 +161,15 @@ export default function GalleryPage() {
             </header>
             <main className="pt-24 pb-32 px-6 max-w-7xl mx-auto">
                 <section className="mb-10">
-                    <h1 className="text-5xl font-extrabold tracking-[-0.04em] mb-6">Gallery</h1>
+                    <h1 className="text-4xl md:text-5xl font-extrabold tracking-[-0.04em] mb-6">Gallery</h1>
                     <div className="flex gap-3 overflow-x-auto pb-4 no-scrollbar">
-                        <button className="px-6 py-2.5 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] text-white text-sm font-semibold tracking-wide shadow-lg whitespace-nowrap">
+                        <button className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-gradient-to-br from-[#7C3AED] to-[#5B21B6] text-white text-sm font-semibold tracking-wide shadow-lg whitespace-nowrap">
                             This Week
                         </button>
-                        <button className="px-6 py-2.5 rounded-full bg-surface-container-high border border-outline-variant/15 text-on-surface-variant text-sm font-semibold tracking-wide hover:bg-white/5 transition-all whitespace-nowrap">
+                        <button className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-surface-container-high border border-outline-variant/15 text-on-surface-variant text-sm font-semibold tracking-wide hover:bg-white/5 transition-all whitespace-nowrap">
                             This Month
                         </button>
-                        <button className="px-6 py-2.5 rounded-full bg-surface-container-high border border-outline-variant/15 text-on-surface-variant text-sm font-semibold tracking-wide hover:bg-white/5 transition-all whitespace-nowrap">
+                        <button className="px-4 py-2 md:px-6 md:py-2.5 rounded-full bg-surface-container-high border border-outline-variant/15 text-on-surface-variant text-sm font-semibold tracking-wide hover:bg-white/5 transition-all whitespace-nowrap">
                             All Time
                         </button>
                     </div>
