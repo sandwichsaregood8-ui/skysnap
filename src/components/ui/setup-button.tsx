@@ -12,7 +12,6 @@ export function SetupButton() {
   const orbs = [
     { color: "hsl(var(--primary))", d: 15 },
     { color: "hsl(var(--secondary))", d: 20 },
-    { color: "hsl(var(--accent))", d: 25 },
   ];
 
   return (
@@ -42,7 +41,6 @@ export function SetupButton() {
           border: none;
           cursor: pointer;
           background: transparent;
-          overflow: hidden;
           width: 100%;
           height: 200px;
           border-radius: 28px;
@@ -70,7 +68,6 @@ export function SetupButton() {
                 transparent 30%
             );
             animation: rotate-border 20s linear infinite;
-            z-index: 1;
         }
 
         .button-inner {
@@ -102,15 +99,24 @@ export function SetupButton() {
           border-radius: 50%;
           top: 50%;
           left: 50%;
-          transform-origin: 0 0;
+          transform-origin: center center;
           filter: blur(50px);
-          opacity: 0.25;
-          animation: orb-move var(--d) linear infinite;
+          animation: orb-pulse var(--d) ease-in-out infinite;
         }
 
-        @keyframes orb-move {
-          0% { transform: translate(-50%, -50%) rotate(0deg) translateX(60px); }
-          100% { transform: translate(-50%, -50%) rotate(360deg) translateX(60px); }
+        @keyframes orb-pulse {
+          0% {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0.25;
+          }
+          50% {
+            transform: translate(-50%, -50%) scale(1.1);
+            opacity: 0.35;
+          }
+          100% {
+            transform: translate(-50%, -50%) scale(0.9);
+            opacity: 0.25;
+          }
         }
 
         .button-text {
