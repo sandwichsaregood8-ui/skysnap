@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
-import { Plus, Menu, Video } from 'lucide-react';
+import { Menu, Video } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 const ShaderCanvas = () => {
@@ -196,21 +196,37 @@ export default function MyDevicesPage() {
                     </div>
                 )}
 
-                <div className="h-full flex flex-col">
-                    <Button 
-                        onClick={() => router.push('/dashboard/connect')}
-                        variant="outline" 
-                        className="group relative flex flex-col items-center justify-center gap-4 w-full aspect-square lg:aspect-auto lg:h-[480px] rounded-[2rem] border-white/10 bg-white/5 backdrop-blur-xl hover:bg-white/10 transition-all duration-300 overflow-hidden p-8 h-auto"
-                    >
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        <div className="relative w-20 h-20 rounded-full bg-gradient-to-br from-primary/30 to-primary-container/30 border border-white/20 flex items-center justify-center group-hover:scale-110 transition-transform duration-500">
-                            <Plus className="text-4xl text-white" />
+                <div className="h-full flex flex-col items-center justify-center">
+                    <div style={{ position: 'relative' }}>
+                      <svg style={{ position: 'absolute', width: 0, height: 0 }}>
+                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq">
+                          <feColorMatrix
+                            values="1 0 0 0 0              0 1 0 0 0              0 0 1 0 0              0 0 0 9 0"
+                          ></feColorMatrix>
+                        </filter>
+                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq2">
+                          <feColorMatrix
+                            values="1 0 0 0 0              0 1 0 0 0              0 0 1 0 0              0 0 0 3 0"
+                          ></feColorMatrix>
+                        </filter>
+                        <filter width="300%" x="-100%" height="300%" y="-100%" id="unopaq3">
+                          <feColorMatrix
+                            values="1 0 0 0.2 0              0 1 0 0.2 0              0 0 1 0.2 0              0 0 0 2 0"
+                          ></feColorMatrix>
+                        </filter>
+                      </svg>
+                      <button onClick={() => router.push('/dashboard/connect')} className="real-button"></button>
+                      <div className="backdrop"></div>
+                      <div className="button-container">
+                        <div className="spin spin-blur"></div>
+                        <div className="spin spin-intense"></div>
+                        <div className="backdrop"></div>
+                        <div className="button-border">
+                          <div className="spin spin-inside"></div>
+                          <div className="button">Set up or add new device</div>
                         </div>
-                        <div className="relative text-center">
-                            <h4 className="font-headline text-xl font-bold text-white">Set up or add new device</h4>
-                        </div>
-                        <div className="absolute -bottom-24 -right-24 w-64 h-64 bg-primary/20 blur-[100px] rounded-full pointer-events-none"></div>
-                    </Button>
+                      </div>
+                    </div>
                 </div>
             </div>
         </div>
