@@ -81,22 +81,23 @@ export function BackgroundGradient() {
             vec3 purple = vec3(0.48, 0.18, 0.98);
             vec3 teal = vec3(0.18, 0.98, 0.78);
 
-            // Wave calculation based on y for horizontal bands
+            // Wave calculation based on x for vertical bands
             // The fbm adds distortion to the wave
-            float y = p.y + fbm(p*0.5 + t*0.1) * 0.05; 
+            vec2 fbm_coord = p * 0.5 + vec2(t * 0.1, u_time * 0.0001); // Slow down vertical noise movement
+            float x = p.x + fbm(fbm_coord) * 0.05; 
 
-            // Create multiple horizontal waves with different frequencies and speeds
-            float wave1 = 1.0 - abs(sin(y * 8.0 - t));
+            // Create multiple vertical waves with different frequencies and speeds
+            float wave1 = 1.0 - abs(sin(x * 8.0 - t));
             wave1 = pow(wave1, 15.0);
 
-            float wave2 = 1.0 - abs(sin(y * 12.0 - t * 1.2));
+            float wave2 = 1.0 - abs(sin(x * 12.0 - t * 1.2));
             wave2 = pow(wave2, 18.0);
 
             // Combining waves
             float combined_wave = wave1 * 0.6 + wave2 * 0.4;
 
             // Detailed noise for texture and movement
-            float noise_texture = fbm(p * 3.0 + t * 0.3);
+            float noise_texture = fbm(p * 3.0 + vec2(t * 0.3, u_time * 0.0001));
             
             // Mix colors
             vec3 aurora_color = mix(purple, teal, noise_texture);
