@@ -132,6 +132,13 @@ export function SetupButton() {
                 "--d": "20s",
               } as React.CSSProperties}
             />
+             <div
+              className="button-88-orb"
+              style={{
+                "--color": "hsl(var(--accent))",
+                "--d": "10s",
+              } as React.CSSProperties}
+            />
           </div>
           <span className="button-88-text">Set up or add new device</span>
         </div>
