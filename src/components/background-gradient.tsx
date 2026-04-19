@@ -65,32 +65,41 @@ export function BackgroundGradient() {
 
             float time = u_time * 0.2;
 
-            // Static component: A wide, gentle sine wave shaping the background
-            float static_wave = sin(uv.y * 2.0 + 1.5) * 0.25;
+            // Static component: A wider, gentle sine wave shaping the background
+            float static_wave = sin(uv.y * 1.0 + 1.5) * 0.3;
 
-            // Dynamic component: Faster moving, smaller waves for shimmer
-            float dynamic_wave1 = sin(uv.x * 10.0 + time) * 0.02;
-            float dynamic_wave2 = cos(uv.y * 15.0 - time * 1.5) * 0.015;
+            // Dynamic component: Wider, faster moving, smaller waves for shimmer
+            float dynamic_wave1 = sin(uv.x * 5.0 + time) * 0.03;
+            float dynamic_wave2 = cos(uv.y * 7.0 - time * 1.5) * 0.02;
 
             // Combine the waves to distort the y-coordinate
             float final_y = uv.y + static_wave + dynamic_wave1 + dynamic_wave2;
 
             // Use noise for a smoky/aurora texture, animated over time
-            vec2 noise_coord = vec2(uv.x * 1.5, final_y * 2.0 - time * 0.05);
+            vec2 noise_coord = vec2(uv.x * 1.0, final_y * 1.5 - time * 0.05);
             float n = fbm(noise_coord);
 
-            // Color palette based on the app's theme
+            // Color palette based on the app's theme, now with blue
             vec3 color1 = vec3(0.09, 0.08, 0.12); // Dark background
             vec3 color2 = vec3(0.486, 0.227, 0.929); // Primary purple
             vec3 color3 = vec3(0.176, 0.831, 0.749); // Accent teal
+            vec3 color_blue = vec3(0.2, 0.3, 0.85); // Added blue
 
             // Mix colors based on the noise and wave patterns
-            vec3 color = mix(color1, color2, smoothstep(0.3, 0.6, n));
+            vec3 color = mix(color1, color2, smoothstep(0.3, 0.55, n));
             
-            // Add a highlight from another sine wave for more visual interest
-            float highlight = sin(final_y * 30.0 + time * 0.5) * 0.5 + 0.5;
-            highlight = pow(highlight, 10.0);
-            color += color3 * highlight * 0.3;
+            // Add a highlight from another sine wave for more visual interest, incorporating blue
+            float highlight = sin(final_y * 20.0 + time * 0.5) * 0.5 + 0.5;
+            highlight = pow(highlight, 8.0);
+            
+            vec3 highlight_color = mix(color3, color_blue, sin(uv.x * 3.0 + time) * 0.5 + 0.5);
+            color += highlight_color * highlight * 0.4;
+            
+            // Add a different layer of blue waves
+            float blue_wave = sin(uv.y * 5.0 - time * 0.4) * 0.5 + 0.5;
+            blue_wave = pow(blue_wave, 5.0);
+            color = mix(color, color_blue, blue_wave * 0.2);
+
 
             // Add some fine-grained noise for a bit of grain
             color += (random(uv * 500.0) - 0.5) * 0.05;
