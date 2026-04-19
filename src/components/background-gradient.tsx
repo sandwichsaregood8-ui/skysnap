@@ -81,10 +81,10 @@ export function BackgroundGradient() {
             vec3 purple = vec3(0.48, 0.18, 0.98);
             vec3 teal = vec3(0.18, 0.98, 0.78);
 
-            // Wide cosine wave for the main band shape
-            float y = p.y + fbm(p*0.5 + t*0.1) * 0.1;
-            float cos_wave = cos(y * 4.0 - t) * 0.5 + 0.5;
-            cos_wave = smoothstep(0.4, 0.6, cos_wave);
+            // Thinner wave shape
+            float y = p.y + fbm(p*0.7 + t*0.1) * 0.05;
+            float wave = 1.0 - abs(sin(y * 7.0 - t));
+            wave = pow(wave, 25.0);
 
             // Detailed noise for texture and movement
             float noise_texture = fbm(p * 3.0 + t * 0.3);
@@ -92,12 +92,8 @@ export function BackgroundGradient() {
             // Mix colors
             vec3 aurora_color = mix(purple, teal, noise_texture);
             
-            // Apply the main cosine wave as a mask
-            color = mix(color, aurora_color, cos_wave * 0.6);
-
-            // Add shimmering vertical streaks
-            float streaks = pow(fbm(p * vec2(0.5, 3.0) + t * 0.5), 3.0);
-            color += mix(purple, teal, p.y) * streaks * 0.3;
+            // Apply the thin wave as a mask
+            color = mix(color, aurora_color, wave * 1.2);
 
             // Reduce stars significantly
             float stars = pow(noise(p * 300.0), 30.0);
