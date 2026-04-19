@@ -15,122 +15,22 @@ export function SetupButton() {
   ];
 
   return (
-    <>
-      <button className="fusion-button" onClick={handleClick}>
-        <div className="button-inner">
-          <div className="orbs-container">
-            {orbs.map((orb, idx) => (
-              <div
-                key={idx}
-                className="orb"
-                style={{
-                  "--color": orb.color,
-                  "--d": `${orb.d}s`,
-                } as React.CSSProperties}
-              />
-            ))}
-          </div>
-          <span className="button-text">Set up or add new device</span>
+    <button className="button-88" onClick={handleClick}>
+      <div className="button-88-inner">
+        <div className="button-88-orbs-container">
+          {orbs.map((orb, idx) => (
+            <div
+              key={idx}
+              className="button-88-orb"
+              style={{
+                "--color": orb.color,
+                "--d": `${orb.d}s`,
+              } as React.CSSProperties}
+            />
+          ))}
         </div>
-      </button>
-
-      <style>{`
-        .fusion-button {
-          position: relative;
-          padding: 2px;
-          border: none;
-          cursor: pointer;
-          background: transparent;
-          width: 100%;
-          height: 200px;
-          border-radius: 28px;
-          transition: transform 0.2s ease;
-        }
-
-        .fusion-button:hover {
-          transform: scale(1.03);
-        }
-
-        .fusion-button:active {
-          transform: scale(0.99);
-        }
-
-        .fusion-button::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            left: -50%;
-            width: 200%;
-            height: 200%;
-            background: conic-gradient(
-                transparent,
-                hsl(var(--primary) / 0.6),
-                transparent 30%
-            );
-            animation: rotate-border 20s linear infinite;
-        }
-
-        .button-inner {
-          position: absolute;
-          inset: 2px;
-          background: hsl(var(--background));
-          border-radius: 26px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
-          overflow: hidden;
-        }
-
-        .orbs-container {
-          position: absolute;
-          inset: 0;
-          width: 100%;
-          height: 100%;
-          overflow: hidden;
-          z-index: -1;
-        }
-
-        .orb {
-          position: absolute;
-          width: 100%;
-          height: 100%;
-          background-color: var(--color);
-          border-radius: 50%;
-          top: 50%;
-          left: 50%;
-          transform-origin: center center;
-          filter: blur(50px);
-          animation: orb-pulse var(--d) ease-in-out infinite;
-        }
-
-        @keyframes orb-pulse {
-          0% {
-            transform: translate(-50%, -50%) scale(0.9);
-            opacity: 0.25;
-          }
-          50% {
-            transform: translate(-50%, -50%) scale(1.1);
-            opacity: 0.35;
-          }
-          100% {
-            transform: translate(-50%, -50%) scale(0.9);
-            opacity: 0.25;
-          }
-        }
-
-        .button-text {
-          font-size: 18px;
-          font-weight: 600;
-          color: white;
-          z-index: 1;
-        }
-
-        @keyframes rotate-border {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-      `}</style>
-    </>
+        <span className="button-88-text">Set up or add new device</span>
+      </div>
+    </button>
   );
 }
