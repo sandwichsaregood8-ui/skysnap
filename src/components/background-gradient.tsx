@@ -27,28 +27,90 @@ export function BackgroundGradient() {
         uniform float u_time;
         uniform vec2 u_resolution;
 
-        // Using colors inspired by the image, very dark and subtle.
-        const vec3 color_bg = vec3(0.04, 0.07, 0.15);      // Deep Navy (#0a1226)
-        const vec3 color_highlight1 = vec3(0.1, 0.05, 0.25); // Indigo
-        const vec3 color_highlight2 = vec3(0.15, 0.1, 0.3);   // Faint Violet
+        // The aurora effect is created by layering multiple noise functions (fbm)
+        // to create a flowing, organic shape. The colors are blended based on
+        // the noise values to get the multi-colored aurora feel from the image.
+
+        float random (in vec2 _st) {
+            return fract(sin(dot(_st.xy,
+                                 vec2(12.9898,78.233)))*
+                43758.5453123);
+        }
+
+        // Based on Morgan McGuire @morgan3d
+        // https://www.shadertoy.com/view/4dS3Wd
+        float noise (in vec2 _st) {
+            vec2 i = floor(_st);
+            vec2 f = fract(_st);
+
+            // Four corners in 2D of a tile
+            float a = random(i);
+            float b = random(i + vec2(1.0, 0.0));
+            float c = random(i + vec2(0.0, 1.0));
+            float d = random(i + vec2(1.0, 1.0));
+
+            vec2 u = f * f * (3.0 - 2.0 * f);
+
+            return mix(a, b, u.x) +
+                    (c - a)* u.y * (1.0 - u.x) +
+                    (d - b) * u.x * u.y;
+        }
+
+        #define NUM_OCTAVES 5
+        float fbm ( in vec2 _st) {
+            float v = 0.0;
+            float a = 0.5;
+            vec2 shift = vec2(100.0);
+            // Rotate to reduce axial bias
+            mat2 rot = mat2(cos(0.5), sin(0.5),
+                            -sin(0.5), cos(0.50));
+            for (int i = 0; i < NUM_OCTAVES; ++i) {
+                v += a * noise(_st);
+                _st = rot * _st * 2.0 + shift;
+                a *= 0.5;
+            }
+            return v;
+        }
 
         void main() {
-            vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-            float t = u_time * 0.1; // Slow time for subtle movement
+            vec2 uv = gl_FragCoord.xy/u_resolution.xy;
+            float t = u_time * 0.05; // Slowed down animation
 
-            // Create two very wide, slow-moving, overlapping waves
-            float wave1 = sin(uv.x * 0.5 - uv.y * 0.2 + t) * 0.5 + 0.5;
-            float wave2 = cos(uv.y * 0.7 + uv.x * 0.3 - t * 0.8) * 0.5 + 0.5;
+            // Background Color
+            vec3 final_color = vec3(0.005, 0.005, 0.015);
+
+            // Create a flowing, distorted coordinate space for the aurora
+            vec2 pos = uv;
+            pos.y *= 1.4; // Stretch the noise vertically
+            pos.x *= 0.7; // Stretch the noise horizontally
+            float f = fbm(pos * 1.2 + vec2(0.0, t * -0.3));
             
-            // Mix the colors. The waves will control the mix factor.
-            vec3 color = mix(color_bg, color_highlight1, wave1 * 0.25); // highlight 1 is subtle
-            color = mix(color, color_highlight2, wave2 * 0.15); // highlight 2 is even more subtle
+            // Create the main aurora shape from the noise, making it a wide band
+            float aurora_shape = smoothstep(0.45, 0.6, f) - smoothstep(0.6, 0.7,f);
 
-            // A dark vignette to keep focus on the center and match the image
-            float vignette = smoothstep(1.0, 0.4, length(uv - vec2(0.5)));
-            color *= vignette;
+            // Define the aurora colors from the image
+            vec3 purple = vec3(0.4, 0.15, 0.6);
+            vec3 blue = vec3(0.1, 0.3, 0.8);
+            vec3 cyan = vec3(0.1, 0.7, 0.7);
 
-            gl_FragColor = vec4(color, 1.0);
+            // Layer the colors based on another noise pattern to create variety within the band
+            float color_noise = fbm(uv * 3.0 + vec2(0.0, t * 0.2));
+            vec3 aurora_color = mix(purple, blue, smoothstep(0.4, 0.6, color_noise));
+            aurora_color = mix(aurora_color, cyan, smoothstep(0.55, 0.7, color_noise));
+
+            // Combine shape and color
+            final_color += aurora_color * aurora_shape * 1.2;
+            
+            // Add faint dot grid on top
+            vec2 grid_uv = fract(gl_FragCoord.xy / 8.0);
+            float dot_dist = distance(grid_uv, vec2(0.5));
+            float dots = 1.0 - smoothstep(0.4, 0.45, dot_dist);
+            final_color += dots * 0.04;
+
+            // Vignette to darken the edges
+            final_color *= smoothstep(1.3, 0.35, length(uv - vec2(0.5)));
+
+            gl_FragColor = vec4(final_color, 1.0);
         }
     `;
 
