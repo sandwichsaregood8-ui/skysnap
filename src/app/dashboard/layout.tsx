@@ -69,10 +69,6 @@ export default function DashboardLayout({
                     </SidebarContent>
                     <SidebarFooter>
                         <div className="flex flex-col gap-2 px-2">
-                            <Button className="w-full bg-gradient-to-br from-primary to-primary-container text-white h-auto py-3">
-                                <Gem className="mr-2 h-4 w-4" />
-                                Upgrade to Pro
-                            </Button>
                             <SidebarMenu>
                                 <SidebarMenuItem>
                                     <SidebarMenuButton asChild>
