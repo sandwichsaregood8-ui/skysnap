@@ -86,7 +86,7 @@ export default function DashboardLayout({
                         </div>
                     </SidebarFooter>
                 </Sidebar>
-                <SidebarInset>
+                <SidebarInset className={pathname === '/dashboard/gallery' ? 'bg-transparent' : ''}>
                     {children}
                 </SidebarInset>
             </SidebarProvider>
