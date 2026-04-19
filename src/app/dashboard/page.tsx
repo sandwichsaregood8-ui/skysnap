@@ -128,6 +128,7 @@ export default function MyDevicesPage() {
 
     return (
         <div className="p-6 md:p-12 h-screen overflow-y-auto">
+             <div className="ambient-bg"></div>
             <header className="flex justify-between items-end mb-12">
                 <div>
                     <div className="flex items-center gap-4 mb-2">

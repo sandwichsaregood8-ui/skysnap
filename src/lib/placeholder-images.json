@@ -1,3 +1,34 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "helix-nebula",
+      "description": "The Helix Nebula Core",
+      "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuDSGTSC34TqkXA0M3P17PhKx1-rABT4qexqBNMCfpCGKgU34BEGYHnVdACQSGB2EhnQZJq09IKCuhPNCFnEOy6ihkohFkFHsLLXpMJfUjDF1aPm21dKVuGkZgc4dG7ToJm1CVoRbqDcLQIuSGAnLdxCOqdZP0LPE7BnBuKqI-FlBOn5ttEtNQqVCmlKlFR26PHR8JZCwsJiNDL12dZdHMHPX5wQaVeW63gL311aIL5unMnGSxMKEKBdOhIoWmrSYC06xvlEJtcAnEI",
+      "imageHint": "nebula stars"
+    },
+    {
+      "id": "polaris-rotation",
+      "description": "Polaris Rotation",
+      "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuAnvFXf-tt07euX4jrGg-qTrGqxFv5w5f5rlkV4SZqydUJvb5XBfPwprVtAjdOYBd3VjH2HGOxARcvu6YavSyRmF58J9xDimagfeyTOZz8IDxJvtXXmjBcHjUIXA1GgpQY_bHHHpfiv-hdfVVr3ALnDomHupqpPvYhOoz1s3v5fJQNU1HMWK7zijIsG0MiRbnnFFYg1SsnVlMVkCEHq7vULTVmBQpuZbzGt3X3ZdTKC5rO78f5y9hVPVj0kU1dbDTX7ORZU2jaSGxk",
+      "imageHint": "star trails"
+    },
+    {
+      "id": "nordic-glow",
+      "description": "Nordic Glow",
+      "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCL33S06V58ntBb5LViYYjNQjz1wJzC_5QvLvS8uxKkm7pYpCESJYChC5ZmCd7Mwk3sLc82ToDMMD6wUXQd7H0imjlkxUVX4GBf2Ty_LfosGZoSTn5DusW8UbV5SseBBC4Zt_MLS06RYFSzwzXaBu5TnKFZ45miGCQeHdFIqX2ZqdHVACH-9ZCtylqC6nd_q852PAgfvZIBV-xa-MMQMxoCM6AACE5wDDuXk5BDcTHBFm9lMSJe1I-p0DNf5oeYwaZtMwsBYaWkbLo",
+      "imageHint": "aurora borealis"
+    },
+    {
+      "id": "andromeda-galaxy",
+      "description": "M31 Andromeda",
+      "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuDiY9lv8_usePo5q76CzFMZ2f9RqE9tPZd7U5PLToE6K1dOOnGk4roXS46PBroU_v_5dWUy-3CJ6cbL446V8sFTZ4ntn5OEfI3zQHd-T1hA8CQ3kiQQulCb_y3w1PKtxlb0SVo6d9FRWbZIYa2FkDAtZxlZlbHZ9F9m9Jeedkff5sl21kUu-Wb_AjN-pSLjeQ73J2HCBS-MVG9HUV01bbNsdd9LiBcX3wk8GNDPAEXGBE0H7Tm-faHKEURlumRzO8mm5eU_3sqaABs",
+      "imageHint": "galaxy intergalactic"
+    },
+    {
+      "id": "canyon-core",
+      "description": "Canyon Core",
+      "imageUrl": "https://lh3.googleusercontent.com/aida-public/AB6AXuCIxy1qR65OJYc1z-kasYxISsMjIB6RdxVkS2LxvDbuNp7y-D9yH7vERNVaYtk8fHwoLwwWieJgee_cY49fyRwNaBl5_PHGlpOKZPLv10dtp5qdSbfHJ70_wHcnMZYNha8jmp5SKaUDjlEsB5IDifpaUxTH376jpCDqoOCWGR8PRRVCWyxPAYKaB64L8fDaXhc5tKwIvZ_uFV-iBZidgJmGastXfn-9Tzp-544s7xLUHJYAXFdypymoycQ0qSZxTQEsq3ktv0G5yXU",
+      "imageHint": "milky way"
+    }
+  ]
 }

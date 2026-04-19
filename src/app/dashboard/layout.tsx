@@ -1,4 +1,7 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import {
     Sidebar,
     SidebarProvider,
@@ -18,9 +21,10 @@ export default function DashboardLayout({
 }: {
     children: React.ReactNode;
 }) {
+    const pathname = usePathname();
+
     return (
         <>
-            <div className="ambient-bg"></div>
             <SidebarProvider>
                 <Sidebar>
                     <SidebarHeader className="px-4">
@@ -34,7 +38,7 @@ export default function DashboardLayout({
                     <SidebarContent>
                         <SidebarMenu>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild isActive>
+                                <SidebarMenuButton asChild isActive={pathname === '/dashboard'}>
                                     <Link href="/dashboard">
                                         <Home />
                                         <span>Home</span>
@@ -42,8 +46,8 @@ export default function DashboardLayout({
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <Link href="#">
+                                <SidebarMenuButton asChild isActive={pathname === '/dashboard/gallery'}>
+                                    <Link href="/dashboard/gallery">
                                         <GalleryVertical />
                                         <span>Gallery</span>
                                     </Link>
