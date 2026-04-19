@@ -102,10 +102,10 @@ export function BackgroundGradient() {
             noise = (noise + 1.0) * 0.5; // Map from [-1, 1] to [0, 1]
             noise = smoothstep(0.4, 0.6, noise);
 
-            // Define colors for a dark, blue theme
-            vec3 color1 = vec3(0.05, 0.1, 0.25);  // Dark blue
-            vec3 color2 = vec3(0.1, 0.2, 0.45);   // Lighter blue/indigo
-            vec3 color_bg = vec3(0.02, 0.03, 0.1); // Very dark navy
+            // Define colors: navy blue, orchid purple, light blue
+            vec3 color_bg = vec3(0.0, 0.0, 0.128);    // Navy Blue
+            vec3 color1 = vec3(0.85, 0.44, 0.84);   // Orchid Purple
+            vec3 color2 = vec3(0.68, 0.85, 0.90);   // Light Blue
 
             // Mix colors based on the diluted fractal noise
             vec3 color = mix(color_bg, color1, noise);
