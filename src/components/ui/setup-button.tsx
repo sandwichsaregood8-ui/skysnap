@@ -9,45 +9,42 @@ export function SetupButton() {
     router.push('/dashboard/connect');
   };
 
+  const orbs = [
+    { color: "hsl(261, 100%, 86%)", d: 15 },
+    { color: "hsl(243, 100%, 87%)", d: 20 },
+  ];
+
   return (
     <>
       <button className="fusion-button" onClick={handleClick}>
-        <div className="orbs-container">
-          {[
-            { color: "#7c3aed", i: 12, d: 15.4 },
-            { color: "#2563eb", i: 18, d: 18.1 },
-            { color: "#0891b2", i: 10, d: 20.9 },
-            { color: "#6d28d9", i: 16, d: 12.8 },
-            { color: "#1d4ed8", i: 14, d: 16.6 },
-            { color: "#0e7490", i: 11, d: 21.3 },
-          ].map((orb, idx) => (
-            <div
-              key={idx}
-              className={`orb ${idx % 2 === 0 ? "reverse" : ""}`}
-              style={{
-                "--color": orb.color,
-                "--i": `${orb.i}px`,
-                "--d": `${orb.d}s`,
-              } as React.CSSProperties}
-            />
-          ))}
-        </div>
         <div className="button-inner">
-          <span className="gradient-text">Set up or add new device</span>
+          <div className="orbs-container">
+            {orbs.map((orb, idx) => (
+              <div
+                key={idx}
+                className="orb"
+                style={{
+                  "--color": orb.color,
+                  "--d": `${orb.d}s`,
+                } as React.CSSProperties}
+              />
+            ))}
+          </div>
+          <span className="button-text">Set up or add new device</span>
         </div>
       </button>
 
       <style>{`
         .fusion-button {
           position: relative;
-          padding: 3px;
+          padding: 1px;
           border: none;
           cursor: pointer;
-          border-radius: 32px;
           background: transparent;
           overflow: hidden;
-          width: 280px;
-          height: 240px;
+          width: 100%;
+          height: 200px;
+          border-radius: 28px;
           transition: transform 0.2s ease;
         }
 
@@ -59,32 +56,56 @@ export function SetupButton() {
           transform: scale(0.99);
         }
 
+        .fusion-button::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: conic-gradient(
+                transparent,
+                hsl(var(--primary) / 0.3),
+                transparent 30%
+            );
+            animation: rotate-border 20s linear infinite;
+            z-index: 1;
+        }
+
+        .button-inner {
+          position: absolute;
+          inset: 1px;
+          background: rgba(34, 42, 62, 0.85); /* surface-container-high from theme */
+          border-radius: 27px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 2;
+          overflow: hidden;
+        }
+
         .orbs-container {
           position: absolute;
           inset: 0;
           width: 100%;
           height: 100%;
           overflow: hidden;
-          border-radius: 32px;
+          z-index: -1;
         }
 
         .orb {
           position: absolute;
-          width: calc(100% + var(--i));
-          height: calc(100% + var(--i));
+          width: 100%;
+          height: 100%;
           background-color: var(--color);
           border-radius: 50%;
           top: 50%;
           left: 50%;
           transform-origin: 0 0;
           mix-blend-mode: hard-light;
-          filter: blur(35px);
-          opacity: 0.6;
+          filter: blur(50px);
+          opacity: 0.25;
           animation: orb-move var(--d) linear infinite;
-        }
-
-        .orb.reverse {
-          animation-direction: reverse;
         }
 
         @keyframes orb-move {
@@ -92,36 +113,16 @@ export function SetupButton() {
           100% { transform: translate(-50%, -50%) rotate(360deg) translateX(60px); }
         }
 
-        .button-inner {
-          position: absolute;
-          inset: 3px;
-          background: rgba(5, 5, 20, 0.85);
-          border-radius: 29px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          z-index: 2;
-        }
-
-        .gradient-text {
+        .button-text {
           font-size: 18px;
-          font-weight: bold;
-          color: transparent;
-          background: conic-gradient(
-            from 0deg,
-            #7c3aed, #2563eb, #0891b2, #6d28d9, #1d4ed8, #0e7490, #7c3aed
-          );
-          background-clip: text;
-          -webkit-background-clip: text;
-          filter: hue-rotate(0deg);
+          font-weight: 600;
+          color: white;
+          z-index: 1;
         }
 
-        .fusion-button:hover .gradient-text {
-          animation: hue-rotating 6s linear infinite;
-        }
-
-        @keyframes hue-rotating {
-          to { filter: hue-rotate(360deg); }
+        @keyframes rotate-border {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
         }
       `}</style>
     </>
