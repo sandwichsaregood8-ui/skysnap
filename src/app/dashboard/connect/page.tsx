@@ -40,7 +40,7 @@ export default function AddDevicePage() {
                     </div>
                     <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 flex items-center justify-center w-8 h-8 rounded-full border-2 border-primary/20 bg-surface-container text-primary font-bold text-sm">3</div>
-                        <p className="text-on-surface-variant pt-1">Connect to the network named <span className="font-bold text-on-surface inline-flex items-center gap-2">SkySnap-Setup<span className="material-symbols-outlined text-primary/70 text-lg">wifi</span></span>.</p>
+                        <p className="text-on-surface-variant pt-1">Connect to the network named <span className="font-bold text-on-surface inline-flex items-center gap-2">SkySnap-Setup<span className="material-symbols-outlined text-primary/70 text-lg">wifi</span></span></p>
                     </div>
                 </div>
 
