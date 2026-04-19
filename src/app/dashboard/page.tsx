@@ -5,6 +5,7 @@ import { useSidebar } from '@/components/ui/sidebar';
 import { Button } from '@/components/ui/button';
 import { Menu, Video } from 'lucide-react';
 import { useRouter } from 'next/navigation';
+import { SetupButton } from '@/components/ui/setup-button';
 
 const ShaderCanvas = () => {
     const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -196,7 +197,7 @@ export default function MyDevicesPage() {
                     </div>
                 )}
                  <div className="h-full flex flex-col items-center justify-center">
-                    <Button onClick={() => router.push('/dashboard/connect')}>Set up or add new device</Button>
+                    <SetupButton />
                 </div>
             </div>
         </div>
