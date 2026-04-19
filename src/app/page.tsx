@@ -1,3 +1,5 @@
+"use client";
+
 import { BackgroundGradient } from '@/components/background-gradient';
 import { SignInForm } from '@/components/auth/sign-in-form';
 
