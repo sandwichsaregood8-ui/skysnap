@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
-import { WavyButton } from '@/components/ui/wavy-button';
+import { GlowingButton } from '@/components/ui/glowing-button';
 
 export default function AddDevicePage() {
     const router = useRouter();
@@ -49,9 +49,9 @@ export default function AddDevicePage() {
                 </div>
 
                 <div className="flex flex-col gap-6 items-center">
-                    <WavyButton onClick={() => router.push('/dashboard/connect/configure')}>
+                    <GlowingButton onClick={() => router.push('/dashboard/connect/configure')}>
                         I'm Connected to SkySnap-Setup
-                    </WavyButton>
+                    </GlowingButton>
                     <button onClick={() => router.back()} className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors">
                         Cancel Setup
                     </button>
