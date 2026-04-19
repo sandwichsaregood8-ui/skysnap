@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
+import { NextButton } from '@/components/ui/next-button';
 
 export default function AddDevicePage() {
     const router = useRouter();
@@ -44,12 +45,7 @@ export default function AddDevicePage() {
                 </div>
 
                 <div className="flex flex-col gap-6 items-center mt-12">
-                     <button
-                        onClick={() => router.push('/dashboard/connect/configure')}
-                        className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors"
-                    >
-                        Next
-                    </button>
+                     <NextButton />
                     <button onClick={() => router.back()} className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors">
                         Cancel Setup
                     </button>
