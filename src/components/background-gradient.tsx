@@ -78,42 +78,44 @@ export function BackgroundGradient() {
             return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
         }
 
+        // Fractal Brownian Motion
+        float fbm(vec3 p) {
+            float value = 0.0;
+            float amplitude = 0.5;
+            for (int i = 0; i < 5; i++) {
+                value += amplitude * snoise(p);
+                p *= 2.0;
+                amplitude *= 0.5;
+            }
+            return value;
+        }
+
         void main() {
             vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
-            float time = u_time * 0.1;
+            float time = u_time * 0.15;
+
+            vec3 p = vec3(uv * 1.5, time);
+            float noise = fbm(p);
+            
+            // Dilute the fractal by remapping its range.
+            // This creates softer, more cloud-like shapes.
+            noise = (noise + 1.0) * 0.5; // Map from [-1, 1] to [0, 1]
+            noise = smoothstep(0.4, 0.6, noise);
 
             // Define colors for a dark, sunset-purple theme
-            vec3 color1 = vec3(0.05, 0.03, 0.10); // Very dark violet
-            vec3 color2 = vec3(0.3, 0.1, 0.4);    // Deep purple
-            vec3 color3 = vec3(0.15, 0.1, 0.35);  // Dark blue-purple
-            vec3 color4 = vec3(0.45, 0.15, 0.3);  // Reddish/magenta purple
+            vec3 color1 = vec3(0.1, 0.05, 0.2);  // Dark indigo
+            vec3 color2 = vec3(0.4, 0.15, 0.3); // Muted magenta/purple
+            vec3 color_bg = vec3(0.02, 0.01, 0.05); // Very dark purple background
 
-            float f = 0.0;
+            // Mix colors based on the diluted fractal noise
+            vec3 color = mix(color_bg, color1, noise);
+            color = mix(color, color2, pow(noise, 2.5));
 
-            // Create 3 moving points (metaballs)
-            vec2 p1 = vec2(cos(time * 0.8), sin(time * 0.5)) * 0.6;
-            vec2 p2 = vec2(cos(time * 0.5 + 2.0), sin(time * 0.9 + 2.5)) * 0.5;
-            vec2 p3 = vec2(cos(time * 0.6 - 1.0), sin(time * 0.7 - 1.5)) * 0.7;
+            // Add grain for a more analog/randomized feel
+            color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.04;
 
-            // Sum their influences
-            f += 0.08 / distance(uv, p1);
-            f += 0.05 / distance(uv, p2);
-            f += 0.06 / distance(uv, p3);
-
-            // Add some noise for texture
-            float noise = snoise(vec3(uv * 1.5, time * 0.2)) * 0.5 + 0.5;
-            f += noise * 0.2;
-
-            // Create the final color gradient based on the metaball value 'f'
-            vec3 color = mix(color1, color2, smoothstep(0.1, 0.4, f));
-            color = mix(color, color3, smoothstep(0.3, 0.6, f));
-            color = mix(color, color4, smoothstep(0.5, 0.8, f));
-
-            // Add grain
-            color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.05;
-
-            // Vignette
-            color *= 1.0 - length(uv) * 0.5;
+            // Apply a vignette effect
+            color *= 1.0 - length(uv) * 0.7;
             
             gl_FragColor = vec4(color, 1.0);
         }
