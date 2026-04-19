@@ -3,9 +3,15 @@ import { useRouter } from 'next/navigation';
 import { useState } from 'react';
 import { useToast } from '@/hooks/use-toast';
 
+interface DiscoveredDevice {
+  id: string;
+  name?: string;
+}
+
 export default function ConnectPage() {
   const router = useRouter();
   const [isScanning, setIsScanning] = useState(false);
+  const [discoveredDevices, setDiscoveredDevices] = useState<DiscoveredDevice[]>([]);
   const { toast } = useToast();
 
   const handleScanClick = async () => {
@@ -20,25 +26,38 @@ export default function ConnectPage() {
 
     setIsScanning(true);
     try {
-      await navigator.bluetooth.requestDevice({
+      const device = await navigator.bluetooth.requestDevice({
         acceptAllDevices: true,
       });
-      toast({
-        title: 'Device Connected',
-        description: 'Ready to configure your device.',
+
+      setDiscoveredDevices(prevDevices => {
+        if (prevDevices.some(d => d.id === device.id)) {
+          return prevDevices;
+        }
+        const newDevice: DiscoveredDevice = {
+          id: device.id,
+          name: device.name || `Unknown Device`,
+        };
+        return [...prevDevices, newDevice];
       });
+
+      toast({
+        title: 'Device Found',
+        description: `${device.name || 'Unknown Device'} is ready to connect.`,
+      });
+
     } catch (error) {
       if (error instanceof Error && error.name === 'NotFoundError') {
         toast({
-          variant: 'destructive',
-          title: 'Scan Cancelled',
-          description: 'No device was selected.',
+          title: 'Scan Stopped',
+          description: 'No new device was selected.',
         });
       } else {
+        console.error('Bluetooth Error:', error);
         toast({
           variant: 'destructive',
           title: 'Bluetooth Error',
-          description: 'Could not scan for devices. Please ensure Bluetooth is enabled.',
+          description: 'Could not scan for devices. Please ensure Bluetooth is enabled and try again.',
         });
       }
     } finally {
@@ -86,7 +105,7 @@ export default function ConnectPage() {
                    <span className="material-symbols-outlined text-on-surface text-3xl" data-weight="fill">bluetooth</span>
                  </div>
                </div>
-              <button onClick={handleScanClick} className="w-full py-3 px-6 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container-highest text-on-surface font-bold text-base tracking-tight border border-outline-variant/20 shadow-lg hover:brightness-110 active:scale-95 transition-all duration-300">
+              <button onClick={handleScanClick} disabled={isScanning} className="w-full py-3 px-6 rounded-xl bg-gradient-to-br from-surface-container-high to-surface-container-highest text-on-surface font-bold text-base tracking-tight border border-outline-variant/20 shadow-lg hover:brightness-110 active:scale-95 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
                 {isScanning ? 'Scanning...' : 'Scan for Devices'}
               </button>
             </div>
@@ -95,42 +114,33 @@ export default function ConnectPage() {
         <section className="relative z-10 space-y-4">
           <div className="flex items-center justify-between mb-2">
             <h3 className="text-[11px] uppercase tracking-[0.12em] font-bold text-on-surface-variant/80">Discovered Nearby</h3>
-            <span className="text-[11px] font-medium text-primary">2 Found</span>
+            {discoveredDevices.length > 0 && (
+              <span className="text-[11px] font-medium text-primary">{discoveredDevices.length} Found</span>
+            )}
           </div>
-          <div className="glass-card rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:bg-surface-container-high/60 border border-outline-variant/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center border border-outline-variant/15">
-                <span className="material-symbols-outlined text-primary">router</span>
-              </div>
-              <div>
-                <h4 className="font-bold text-on-surface tracking-tight">SkySnap Node v.4</h4>
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px] text-primary">signal_cellular_alt</span>
-                  <span className="text-[12px] text-on-surface-variant font-medium">-42 dBm • Stable</span>
+
+          {discoveredDevices.length === 0 && !isScanning && (
+            <div className="text-center py-8">
+              <p className="text-sm text-on-surface-variant/70">No devices found yet. Click "Scan for Devices" to begin.</p>
+            </div>
+          )}
+
+          {discoveredDevices.map((device) => (
+            <div key={device.id} className="glass-card rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:bg-surface-container-high/60 border border-outline-variant/10">
+              <div className="flex items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center border border-outline-variant/15">
+                  <span className="material-symbols-outlined text-primary">router</span>
+                </div>
+                <div>
+                  <h4 className="font-bold text-on-surface tracking-tight">{device.name}</h4>
                 </div>
               </div>
+              <button onClick={() => router.push('/dashboard/connect/configure')} className="px-4 py-2 rounded-lg bg-surface-bright/10 text-primary text-sm font-bold border border-primary/20 hover:bg-primary hover:text-on-primary transition-all active:scale-95">
+                Connect
+              </button>
             </div>
-            <button onClick={() => router.push('/dashboard/connect/configure')} className="px-4 py-2 rounded-lg bg-surface-bright/10 text-primary text-sm font-bold border border-primary/20 hover:bg-primary hover:text-on-primary transition-all active:scale-95">
-              Connect
-            </button>
-          </div>
-          <div className="glass-card rounded-2xl p-5 flex items-center justify-between group transition-all duration-300 hover:bg-surface-container-high/60 border border-outline-variant/10">
-            <div className="flex items-center gap-4">
-              <div className="w-12 h-12 rounded-xl bg-surface-container-highest flex items-center justify-center border border-outline-variant/15">
-                <span className="material-symbols-outlined text-on-surface-variant">router</span>
-              </div>
-              <div>
-                <h4 className="font-bold text-on-surface tracking-tight">SkySnap Node v.2</h4>
-                <div className="flex items-center gap-1.5">
-                  <span className="material-symbols-outlined text-[14px] text-on-surface-variant">signal_cellular_alt_2_bar</span>
-                  <span className="text-[12px] text-on-surface-variant/60 font-medium">-78 dBm • Weak</span>
-                </div>
-              </div>
-            </div>
-            <button className="px-4 py-2 rounded-lg bg-surface-bright/10 text-on-surface-variant/80 text-sm font-bold border border-outline-variant/20 hover:bg-surface-container-highest transition-all active:scale-95">
-              Connect
-            </button>
-          </div>
+          ))}
+
           <div className="pt-4 text-center">
             <p className="text-[12px] text-on-surface-variant/50 leading-relaxed italic">
               Not seeing your device? Try resetting the power toggle or check the <span className="text-primary/70 underline decoration-primary/20">troubleshooting guide</span>.
