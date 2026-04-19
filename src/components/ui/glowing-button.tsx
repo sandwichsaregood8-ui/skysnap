@@ -75,8 +75,6 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
             )}
             {...props}
         >
-            {/* Dark background for the blend-mode to work on */}
-            <div className="absolute inset-0 bg-[#16141a]" />
             
             {/* The gaseous, moving background */}
             <GassyBackground />
