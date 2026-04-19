@@ -80,17 +80,18 @@ export function BackgroundGradient() {
             // Color Palette (no pink)
             vec3 purple = vec3(0.48, 0.18, 0.98);
             vec3 teal = vec3(0.18, 0.98, 0.78);
+            
+            // SELF-REMINDER: THE WAVES CANNOT BE VERTICAL. THEY MUST BE HORIZONTAL.
+            // Wave calculation is based on y for horizontal bands.
+            // The fbm adds distortion to the wave.
+            vec2 fbm_coord = p * 0.5 + vec2(t * 0.1, u_time * 0.0001);
+            float y = p.y + fbm(fbm_coord) * 0.05; 
 
-            // Wave calculation based on x for vertical bands
-            // The fbm adds distortion to the wave
-            vec2 fbm_coord = p * 0.5 + vec2(t * 0.1, u_time * 0.0001); // Slow down vertical noise movement
-            float x = p.x + fbm(fbm_coord) * 0.05; 
-
-            // Create multiple vertical waves with different frequencies and speeds
-            float wave1 = 1.0 - abs(sin(x * 8.0 - t));
+            // Create multiple horizontal waves with different frequencies and speeds
+            float wave1 = 1.0 - abs(sin(y * 8.0 - t));
             wave1 = pow(wave1, 15.0);
 
-            float wave2 = 1.0 - abs(sin(x * 12.0 - t * 1.2));
+            float wave2 = 1.0 - abs(sin(y * 12.0 - t * 1.2));
             wave2 = pow(wave2, 18.0);
 
             // Combining waves
