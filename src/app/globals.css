@@ -256,16 +256,16 @@
   inset: 0;
   background: #0005;
   border-radius: inherit;
-  clip-path: path( "M 90 0 C 121 0 126 5 126 33 C 126 61 121 66 90 66 L 33 66 C 5 66 0 61 0 33 C 0 5 5 0 33 0 Z"   );
+  clip-path: path("M 90 0 C 121 0 126 4 126 27 C 126 49 121 53 90 53 L 33 53 C 5 53 0 49 0 27 C 0 4 5 0 33 0 Z");
 }
 .button {
   justify-content: center;
   align-items: center;
   border: none;
   border-radius: 0.875em;
-  clip-path: path( "M 90 0 C 115 0 120 5 120 30 C 120 55 115 60 90 60 L 30 60 C 5 60 0 55 0 30 C 0 5 5 0 30 0 Z"   );
+  clip-path: path("M 90 0 C 115 0 120 4 120 24 C 120 44 115 48 90 48 L 30 48 C 5 48 0 44 0 24 C 0 4 5 0 30 0 Z");
   width: 120px;
-  height: 60px;
+  height: 48px;
   background: #111215;
   display: flex;
   flex-direction: column;
@@ -275,7 +275,7 @@
 .real-button {
   position: absolute;
   width: 120px;
-  height: 60px;
+  height: 48px;
   z-index: 1;
   outline: none;
   border: none;
@@ -326,13 +326,13 @@
   animation-play-state: running;
 }
 .spin-blur::before {
-  background: linear-gradient(90deg, #f50 30%, #0000 50%, #05f 70%);
+  background: linear-gradient(90deg, #7c3aed 30%, #0000 50%, #1954e5 70%);
 }
 .spin-intense::before {
-  background: linear-gradient(90deg, #f95 20%, #0000 45% 55%, #59f 80%);
+  background: linear-gradient(90deg, #d2bbff 20%, #0000 45% 55%, #afadff 80%);
 }
 .spin-inside::before {
-  background: linear-gradient(90deg, #fc9 30%, #0000 45% 55%, #9cf 70%);
+  background: linear-gradient(90deg, #eaddff 30%, #0000 45% 55%, #c3c0ff 70%);
 }
 @keyframes speen {
   0% {
