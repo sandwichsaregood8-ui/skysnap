@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from 'next/navigation';
+import { WavyButton } from '@/components/ui/wavy-button';
 
 export default function AddDevicePage() {
     const router = useRouter();
@@ -48,12 +49,9 @@ export default function AddDevicePage() {
                 </div>
 
                 <div className="flex flex-col gap-6 items-center">
-                    <button
-                        onClick={() => router.push('/dashboard/connect/configure')}
-                        className="w-full bg-primary-container text-on-primary-container font-headline font-extrabold py-4 rounded-xl shadow-[0_10px_20px_-5px_rgba(124,58,237,0.4)] active:scale-[0.98] transition-all uppercase tracking-wider text-sm"
-                    >
+                    <WavyButton onClick={() => router.push('/dashboard/connect/configure')}>
                         I'm Connected to SkySnap-Setup
-                    </button>
+                    </WavyButton>
                     <button onClick={() => router.back()} className="text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors">
                         Cancel Setup
                     </button>
