@@ -215,15 +215,15 @@ export default function MyDevicesPage() {
                           ></feColorMatrix>
                         </filter>
                       </svg>
-                      <button onClick={() => router.push('/dashboard/connect')} className="real-button"></button>
+                      <button onClick={() => router.push('/dashboard/connect')} className="real-button-large"></button>
                       <div className="backdrop"></div>
-                      <div className="button-container">
+                      <div className="button-container-large">
                         <div className="spin spin-blur"></div>
                         <div className="spin spin-intense"></div>
                         <div className="backdrop"></div>
-                        <div className="button-border">
+                        <div className="button-border-large">
                           <div className="spin spin-inside"></div>
-                          <div className="button">Set up or add new device</div>
+                          <div className="button-large">Set up or add new device</div>
                         </div>
                       </div>
                     </div>
