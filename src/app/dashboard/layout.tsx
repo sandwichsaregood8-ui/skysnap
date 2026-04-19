@@ -46,7 +46,7 @@ export default function DashboardLayout({
                                 </SidebarMenuButton>
                             </SidebarMenuItem>
                             <SidebarMenuItem>
-                                <SidebarMenuButton asChild isActive={pathname === '/dashboard/gallery'}>
+                                <SidebarMenuButton asChild isActive={pathname.startsWith('/dashboard/gallery')}>
                                     <Link href="/dashboard/gallery">
                                         <GalleryVertical />
                                         <span>Gallery</span>
@@ -86,7 +86,7 @@ export default function DashboardLayout({
                         </div>
                     </SidebarFooter>
                 </Sidebar>
-                <SidebarInset className={(pathname === '/dashboard/gallery' || pathname === '/dashboard/connect') ? 'bg-transparent' : ''}>
+                <SidebarInset className={(pathname.startsWith('/dashboard/gallery') || pathname.startsWith('/dashboard/connect')) ? 'bg-transparent' : ''}>
                     {children}
                 </SidebarInset>
             </SidebarProvider>

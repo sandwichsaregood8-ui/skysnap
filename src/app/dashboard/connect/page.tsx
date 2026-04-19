@@ -65,7 +65,7 @@ export default function ConnectPage() {
                 </div>
               </div>
             </div>
-            <button className="px-4 py-2 rounded-lg bg-surface-bright/10 text-primary text-sm font-bold border border-primary/20 hover:bg-primary hover:text-on-primary transition-all active:scale-95">
+            <button onClick={() => router.push('/dashboard/connect/configure')} className="px-4 py-2 rounded-lg bg-surface-bright/10 text-primary text-sm font-bold border border-primary/20 hover:bg-primary hover:text-on-primary transition-all active:scale-95">
               Connect
             </button>
           </div>
