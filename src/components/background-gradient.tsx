@@ -80,31 +80,26 @@ export function BackgroundGradient() {
             vec3 blue = vec3(0.1, 0.3, 0.8);
             vec3 cyan = vec3(0.1, 0.7, 0.7);
 
-            // --- Gassy Effect ---
-            // Create multiple layers of noise moving at different speeds for a parallax effect.
+            // --- Aurora Effect ---
+            // Use FBM to create distortion for the aurora curtains
+            vec2 p = vec2(uv.x * 2.0, uv.y * 0.8);
+            vec2 q = vec2(fbm(p + t * 0.1), fbm(p + vec2(5.2, 1.3) + t * 0.15));
+            float distorted_noise = fbm(p + 4.0 * q + vec2(1.7, 9.2) + 0.15 * t );
 
-            // Layer 1: Slow, large background clouds
-            vec2 uv1 = uv * 0.8 + vec2(t * 0.1, t * 0.05);
-            float f1 = fbm(uv1);
+            // Shape the aurora with smoothstep and fade it towards the top
+            float aurora_mask = smoothstep(0.3, 0.6, distorted_noise);
+            aurora_mask *= pow(1.0 - uv.y, 2.0);
+
+            // Add another layer for more detail
+            float detail_noise = fbm(uv * 8.0 - t * 0.4);
+            aurora_mask *= smoothstep(0.5, 0.7, detail_noise) * 0.8 + 0.2;
+
+            // Color the aurora
+            vec3 aurora_color = mix(purple, blue, smoothstep(0.2, 0.8, uv.y + distorted_noise * 0.1));
+            aurora_color = mix(aurora_color, cyan, pow(distorted_noise, 3.0));
             
-            // Layer 2: Medium-sized, faster wisps
-            vec2 uv2 = uv * 1.5 + vec2(t * -0.2, t * 0.15);
-            float f2 = fbm(uv2);
-
-            // Layer 3: Small, fast details
-            vec2 uv3 = uv * 3.0 + vec2(t * 0.3, t * -0.25);
-            float f3 = fbm(uv3);
-
-            // Blend colors using the noise layers as masks
-            // Use smoothstep to create soft-edged patches of color ("gassy")
-            final_color = mix(final_color, purple, smoothstep(0.4, 0.6, f1) * 0.6);
-            final_color = mix(final_color, blue, smoothstep(0.5, 0.7, f2) * 0.5);
-            final_color = mix(final_color, cyan, smoothstep(0.6, 0.75, f3) * 0.4);
+            final_color = mix(final_color, aurora_color, aurora_mask * 0.8);
             
-            // Add some brighter "hot spots"
-            float hotspot_mask = pow(fbm(uv * 4.0 + t), 4.0);
-            final_color += vec3(0.8, 0.8, 1.0) * hotspot_mask * 0.3;
-
             // Vignette to darken the edges
             final_color *= smoothstep(1.3, 0.35, length(uv - vec2(0.5)));
 
