@@ -78,14 +78,6 @@ export function GlowingButton({ children, className, ...props }: GlowingButtonPr
             
             {/* The gaseous, moving background */}
             <GassyBackground />
-            
-            {/* Sheen and shadow effects for a premium feel */}
-            <div
-                className="absolute top-0 left-0 right-0 h-1/2 bg-gradient-to-b from-white/10 to-transparent pointer-events-none"
-            ></div>
-            <div
-                className="absolute inset-0 rounded-full shadow-[inset_0_2px_10px_rgba(255,255,255,0.1),inset_0_-2px_10px_rgba(0,0,0,0.5)]"
-            ></div>
 
             {/* Text content */}
             <span
