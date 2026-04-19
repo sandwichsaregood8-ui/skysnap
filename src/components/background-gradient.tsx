@@ -22,93 +22,99 @@ export function BackgroundGradient() {
         }
     `;
 
-    // The user wants a sine wave with static and dynamic properties.
-    // I will combine a main, slow-moving sine wave with faster, smaller waves
-    // and use FBM noise to create a textured, atmospheric effect.
-    // Making the waves much wider and bolder.
     const fragmentSource = `
         precision highp float;
         uniform float u_time;
         uniform vec2 u_resolution;
 
-        // FBM noise function to add texture
-        float random (in vec2 _st) {
-            return fract(sin(dot(_st.xy, vec2(12.9898,78.233))) * 43758.5453123);
-        }
-
-        float noise (in vec2 _st) {
-            vec2 i = floor(_st);
-            vec2 f = fract(_st);
-            vec2 u = f*f*(3.0-2.0*f);
-            return mix(mix(random(i + vec2(0.0,0.0)), random(i + vec2(1.0,0.0)), u.x),
-                        mix(random(i + vec2(0.0,1.0)), random(i + vec2(1.0,1.0)), u.x), u.y);
-        }
-
-        #define NUM_OCTAVES 5
-        float fbm ( in vec2 _st) {
-            float v = 0.0;
-            float a = 0.5;
-            vec2 shift = vec2(100.0);
-            mat2 rot = mat2(cos(0.5), sin(0.5),
-                            -sin(0.5), cos(0.50));
-            for (int i = 0; i < NUM_OCTAVES; ++i) {
-                v += a * noise(_st);
-                _st = rot * _st * 2.0 + shift;
-                a *= 0.5;
-            }
-            return v;
+        // Simplex noise for organic texture
+        vec3 mod289(vec3 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 mod289(vec4 x) { return x - floor(x * (1.0 / 289.0)) * 289.0; }
+        vec4 permute(vec4 x) { return mod289(((x*34.0)+1.0)*x); }
+        vec4 taylorInvSqrt(vec4 r) { return 1.79284291400159 - 0.85373472095314 * r; }
+        float snoise(vec3 v) {
+            const vec2  C = vec2(1.0/6.0, 1.0/3.0) ;
+            const vec4  D = vec4(0.0, 0.5, 1.0, 2.0);
+            vec3 i  = floor(v + dot(v, C.yyy) );
+            vec3 x0 =   v - i + dot(i, C.xxx) ;
+            vec3 g = step(x0.yzx, x0.xyz);
+            vec3 l = 1.0 - g;
+            vec3 i1 = min( g.xyz, l.zxy );
+            vec3 i2 = max( g.xyz, l.zxy );
+            vec3 x1 = x0 - i1 + C.xxx;
+            vec3 x2 = x0 - i2 + C.yyy;
+            vec3 x3 = x0 - D.yyy;
+            i = mod289(i);
+            vec4 p = permute( permute( permute(
+                        i.z + vec4(0.0, i1.z, i2.z, 1.0 ))
+                    + i.y + vec4(0.0, i1.y, i2.y, 1.0 ))
+                    + i.x + vec4(0.0, i1.x, i2.x, 1.0 ));
+            float n_ = 0.142857142857; // 1.0/7.0
+            vec3  ns = n_ * D.wyz - D.xzx;
+            vec4 j = p - 49.0 * floor(p * ns.z * ns.z);
+            vec4 x_ = floor(j * ns.z);
+            vec4 y_ = floor(j - 7.0 * x_);
+            vec4 x = x_ *ns.x + ns.yyyy;
+            vec4 y = y_ *ns.x + ns.yyyy;
+            vec4 h = 1.0 - abs(x) - abs(y);
+            vec4 b0 = vec4( x.xy, y.xy );
+            vec4 b1 = vec4( x.zw, y.zw );
+            vec4 s0 = floor(b0)*2.0 + 1.0;
+            vec4 s1 = floor(b1)*2.0 + 1.0;
+            vec4 sh = -step(h, vec4(0.0));
+            vec4 a0 = b0.xzyw + s0.xzyw*sh.xxyy ;
+            vec4 a1 = b1.xzyw + s1.xzyw*sh.zzww ;
+            vec3 p0 = vec3(a0.xy,h.x);
+            vec3 p1 = vec3(a0.zw,h.y);
+            vec3 p2 = vec3(a1.xy,h.z);
+            vec3 p3 = vec3(a1.zw,h.w);
+            vec4 norm = taylorInvSqrt(vec4(dot(p0,p0), dot(p1,p1), dot(p2,p2), dot(p3,p3)));
+            p0 *= norm.x;
+            p1 *= norm.y;
+            p2 *= norm.z;
+            p3 *= norm.w;
+            vec4 m = max(0.6 - vec4(dot(x0,x0), dot(x1,x1), dot(x2,x2), dot(x3,x3)), 0.0);
+            m = m * m;
+            return 42.0 * dot( m*m, vec4( dot(p0,x0), dot(p1,x1), dot(p2,x2), dot(p3,x3) ) );
         }
 
         void main() {
-            vec2 uv = gl_FragCoord.xy/u_resolution.xy;
-            float aspect = u_resolution.x / u_resolution.y;
-            uv.x *= aspect;
+            vec2 uv = (gl_FragCoord.xy - 0.5 * u_resolution.xy) / u_resolution.y;
+            float time = u_time * 0.1;
 
-            float time = u_time * 0.1; // Slow down time for a more majestic feel
-
-            // Static component: A VERY wide, gentle sine wave shaping the background
-            float static_wave = sin(uv.y * 0.3 + 1.5) * 0.4;
-
-            // Dynamic component: Wider, slower moving waves for shimmer
-            float dynamic_wave1 = sin(uv.x * 0.5 + time) * 0.1;
-            float dynamic_wave2 = cos(uv.y * 0.8 - time * 0.5) * 0.08;
-
-            // Combine the waves to distort the y-coordinate
-            float final_y = uv.y + static_wave + dynamic_wave1 + dynamic_wave2;
-
-            // Use noise for a smoky/aurora texture, animated over time, with wider features
-            vec2 noise_coord = vec2(uv.x * 0.7, final_y * 1.0 - time * 0.05);
-            float n = fbm(noise_coord);
-
-            // Color palette based on the app's theme, now with blue
+            // Define colors from the theme
             vec3 color1 = vec3(0.09, 0.08, 0.12); // Dark background
             vec3 color2 = vec3(0.486, 0.227, 0.929); // Primary purple
-            vec3 color3 = vec3(0.176, 0.831, 0.749); // Accent teal
-            vec3 color_blue = vec3(0.2, 0.3, 0.85); // Added blue
+            vec3 color3 = vec3(0.2, 0.3, 0.85); // Blue
+            vec3 color4 = vec3(0.176, 0.831, 0.749); // Accent teal
 
-            // Mix colors based on the noise and wave patterns - bolder transition
-            vec3 color = mix(color1, color2, smoothstep(0.4, 0.55, n));
+            float f = 0.0;
+
+            // Create 3 moving points (metaballs)
+            vec2 p1 = vec2(cos(time * 0.8), sin(time * 0.5)) * 0.6;
+            vec2 p2 = vec2(cos(time * 0.5 + 2.0), sin(time * 0.9 + 2.5)) * 0.5;
+            vec2 p3 = vec2(cos(time * 0.6 - 1.0), sin(time * 0.7 - 1.5)) * 0.7;
+
+            // Sum their influences
+            f += 0.08 / distance(uv, p1);
+            f += 0.05 / distance(uv, p2);
+            f += 0.06 / distance(uv, p3);
+
+            // Add some noise for texture
+            float noise = snoise(vec3(uv * 1.5, time * 0.2)) * 0.5 + 0.5;
+            f += noise * 0.2;
+
+            // Create the final color gradient based on the metaball value 'f'
+            vec3 color = mix(color1, color2, smoothstep(0.1, 0.4, f));
+            color = mix(color, color3, smoothstep(0.3, 0.6, f));
+            color = mix(color, color4, smoothstep(0.5, 0.8, f));
+
+            // Add grain
+            color += (fract(sin(dot(uv, vec2(12.9898,78.233))) * 43758.5453) - 0.5) * 0.05;
+
+            // Vignette
+            color *= 1.0 - length(uv) * 0.5;
             
-            // Add a highlight from another wider sine wave for more visual interest
-            float highlight = sin(final_y * 10.0 + time * 0.5) * 0.5 + 0.5;
-            highlight = pow(highlight, 6.0);
-            
-            vec3 highlight_color = mix(color3, color_blue, sin(uv.x * 1.0 + time) * 0.5 + 0.5);
-            color += highlight_color * highlight * 0.6;
-            
-            // Add a different layer of WIDE blue waves
-            float blue_wave = sin(uv.y * 1.0 - time * 0.2) * 0.5 + 0.5;
-            blue_wave = pow(blue_wave, 4.0);
-            color = mix(color, color_blue, blue_wave * 0.3);
-
-
-            // Add some fine-grained noise for a bit of grain
-            color += (random(uv * 500.0) - 0.5) * 0.05;
-
-            // Apply a vignette effect to darken the edges
-            float vignette = 1.0 - length(uv - vec2(aspect*0.5, 0.5)) * 0.8;
-            color *= pow(vignette, 0.7);
-
             gl_FragColor = vec4(color, 1.0);
         }
     `;
