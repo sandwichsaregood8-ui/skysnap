@@ -29,77 +29,32 @@ export default function GalleryPage() {
                 uniform float u_time;
                 uniform vec2 u_resolution;
 
-                float hash(vec2 p) {
-                    return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453123);
-                }
-
-                float noise(vec2 p) {
-                    vec2 i = floor(p);
-                    vec2 f = fract(p);
-                    f = f * f * (3.0 - 2.0 * f);
-                    float a = hash(i);
-                    float b = hash(i + vec2(1.0, 0.0));
-                    float c = hash(i + vec2(0.0, 1.0));
-                    float d = hash(i + vec2(1.0, 1.0));
-                    return mix(mix(a, b, f.x), mix(c, d, f.x), f.y);
-                }
-
-                float fbm(vec2 p) {
-                    float v = 0.0;
-                    float a = 0.5;
-                    for (int i = 0; i < 4; i++) {
-                        v += a * noise(p);
-                        p *= 2.0;
-                        a *= 0.5;
-                    }
-                    return v;
-                }
-
                 void main() {
                     vec2 uv = gl_FragCoord.xy / u_resolution.xy;
-                    float aspect = u_resolution.x / u_resolution.y;
-                    vec2 p = uv;
-                    p.x *= aspect;
+                    uv.x *= u_resolution.x / u_resolution.y;
 
-                    float time = u_time * 0.35;
+                    vec3 color1 = vec3(0.04, 0.07, 0.15); // Deep Navy
+                    vec3 color2 = vec3(0.1, 0.05, 0.25); // Indigo
+                    vec3 color3 = vec3(0.4, 0.1, 0.6);   // Violet
 
-                    vec2 q = vec2(
-                        fbm(p + time * 0.15),
-                        fbm(p + vec2(1.0) + time * 0.1)
-                    );
-
-                    vec2 r = vec2(
-                        fbm(p + 4.0 * q + vec2(1.7, 9.2) + 0.25 * time),
-                        fbm(p + 4.0 * q + vec2(8.3, 2.8) + 0.22 * time)
-                    );
-
-                    float f = fbm(p + 4.0 * r);
-
-                    vec3 navy = vec3(0.02, 0.04, 0.1);
-                    vec3 indigo = vec3(0.08, 0.1, 0.4);
-                    vec3 violet = vec3(0.4, 0.1, 0.7);
-                    vec3 cyan = vec3(0.0, 0.9, 0.95);
-                    vec3 orchid = vec3(0.8, 0.2, 0.9);
-
-                    vec3 col = mix(navy, indigo, clamp(f * 2.2, 0.0, 1.0));
-                    col = mix(col, violet, clamp(length(q) * 1.4, 0.0, 1.0) * 0.7);
+                    float t = u_time * 0.4;
                     
-                    float highlight = pow(f, 3.5);
-                    col = mix(col, cyan, highlight * 0.3);
-                    col = mix(col, orchid, pow(length(r), 4.0) * 0.4);
+                    float wave1 = sin(uv.x * 2.0 + t + sin(uv.y * 3.0 + t)) * 0.5 + 0.5;
+                    float wave2 = sin(uv.y * 1.5 - t * 0.7 + cos(uv.x * 2.5 + t * 0.5)) * 0.5 + 0.5;
+                    
+                    float mixFactor = (wave1 + wave2) * 0.5;
+                    vec3 finalColor = mix(color1, color2, mixFactor);
+                    finalColor = mix(finalColor, color3, pow(mixFactor, 3.0) * 0.6);
 
-                    float holeNoise = noise(p * 0.7 - time * 0.15);
-                    float hole = smoothstep(0.18, 0.0, abs(holeNoise - 0.5) - 0.03);
-                    col = mix(col, navy * 0.3, hole * 0.6);
+                    vec2 hole1Pos = vec2(0.3 + 0.1 * sin(t * 0.5), 0.5 + 0.1 * cos(t * 0.3));
+                    float hole1 = smoothstep(0.15, 0.0, length(uv - hole1Pos));
+                    
+                    vec2 hole2Pos = vec2(0.7 + 0.1 * cos(t * 0.4), 0.3 + 0.1 * sin(t * 0.6));
+                    float hole2 = smoothstep(0.12, 0.0, length(uv - hole2Pos));
 
-                    float holeNoise2 = noise(p * 1.4 + vec2(15.0) + time * 0.12);
-                    float hole2 = smoothstep(0.15, 0.0, abs(holeNoise2 - 0.4) - 0.02);
-                    col = mix(col, navy * 0.1, hole2 * 0.7);
+                    finalColor = mix(finalColor, color1 * 0.5, hole1 + hole2);
 
-                    float vignette = 1.0 - length(uv - 0.5) * 0.75;
-                    col *= (vignette + 0.1);
-
-                    gl_FragColor = vec4(col, 1.0);
+                    gl_FragColor = vec4(finalColor, 1.0);
                 }
             `;
 
