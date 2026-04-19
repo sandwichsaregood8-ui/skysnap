@@ -168,10 +168,12 @@ export default function MyDevicesPage() {
                                         <span className="font-body text-xl font-semibold text-white">1,240m</span>
                                     </div>
                                 </div>
-                                <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md px-6 py-3 rounded-xl font-label text-sm uppercase tracking-widest transition-all h-auto">
-                                    <Video className="mr-2 h-4 w-4" />
-                                    view pictures taken
-                                </Button>
+                                <div className="text-center">
+                                    <Button variant="outline" className="bg-white/10 hover:bg-white/20 text-white border border-white/10 backdrop-blur-md px-6 py-3 rounded-xl font-label text-sm uppercase tracking-widest transition-all h-auto">
+                                        <Video className="mr-2 h-4 w-4" />
+                                        view pictures taken
+                                    </Button>
+                                </div>
                             </div>
                         </div>
                     </div>
