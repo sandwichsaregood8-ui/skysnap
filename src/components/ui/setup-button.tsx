@@ -12,6 +12,7 @@ export function SetupButton() {
   const orbs = [
     { color: "hsl(var(--primary))", d: 15 },
     { color: "hsl(var(--secondary))", d: 20 },
+    { color: "hsl(var(--accent))", d: 25 },
   ];
 
   return (
