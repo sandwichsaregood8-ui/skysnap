@@ -104,7 +104,9 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: #060d20;
+    color: #dbe2fd;
     overflow: hidden;
     margin: 0;
   }
@@ -466,4 +468,62 @@
     100% {
         transform: translateY(20%) translateX(-20%) scale(1.2);
     }
+}
+
+/* Additional styles to make the provided UI work */
+.font-variation-settings\:-\[\'FILL\'_1\] {
+    font-variation-settings: 'FILL' 1;
+}
+
+.text-on-surface-variant\/30 {
+    color: hsl(var(--on-surface-variant) / 0.3);
+}
+
+.text-on-surface-variant\/70 {
+    color: hsl(var(--on-surface-variant) / 0.7);
+}
+
+.text-on-surface-variant\/80 {
+    color: hsl(var(--on-surface-variant) / 0.8);
+}
+
+.border-outline-variant\/20 {
+    border-color: hsl(var(--outline-variant) / 0.2);
+}
+
+.border-outline-variant\/10 {
+    border-color: hsl(var(--outline-variant) / 0.1);
+}
+
+.bg-surface-container-lowest\/30 {
+    background-color: hsl(var(--surface-container-lowest) / 0.3);
+}
+
+.placeholder\:text-outline-variant\/40::placeholder {
+    color: hsl(var(--outline-variant) / 0.4);
+}
+
+.text-primary\/80 {
+    color: hsl(var(--primary) / 0.8);
+}
+
+.shadow-primary\/20 {
+    --tw-shadow-color: hsl(var(--primary) / 0.2);
+    --tw-shadow: var(--tw-shadow-colored);
+}
+
+.text-on-surface-variant\/40 {
+    color: hsl(var(--on-surface-variant) / 0.4);
+}
+
+.hover\:bg-surface-container-lowest\/50:hover {
+    background-color: hsl(var(--surface-container-lowest) / 0.5);
+}
+
+.border-outline-variant\/30 {
+    border-color: hsl(var(--outline-variant) / 0.3);
+}
+
+.group:hover .group-hover\:border-primary\/50 {
+    border-color: hsl(var(--primary) / 0.5);
 }
