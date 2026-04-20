@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud } from 'lucide-react';
+import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -19,22 +19,38 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 export function SignInForm() {
+    const [isSignUp, setIsSignUp] = useState(false);
     const [showPassword, setShowPassword] = useState(false);
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
+    const [name, setName] = useState('');
     const router = useRouter();
     const { toast } = useToast();
 
     const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
-        if (email === '000' && password === '000') {
-            router.push('/dashboard');
-        } else {
+        if (isSignUp) {
+            // Handle Sign Up
             toast({
-                variant: "destructive",
-                title: "Login Failed",
-                description: "Invalid email or password.",
+                title: "Account Created!",
+                description: "You can now sign in with your new credentials.",
             });
+            setIsSignUp(false); // Switch to sign-in form
+            // Clear fields
+            setName('');
+            setEmail('');
+            setPassword('');
+        } else {
+            // Handle Sign In
+            if (email === '000' && password === '000') {
+                router.push('/dashboard');
+            } else {
+                toast({
+                    variant: "destructive",
+                    title: "Login Failed",
+                    description: "Invalid email or password.",
+                });
+            }
         }
     };
 
@@ -50,15 +66,30 @@ export function SignInForm() {
                             <div className="flex items-center gap-2">
                                 <span className="text-lg font-bold tracking-tight bg-gradient-to-br from-primary via-on-surface to-secondary bg-clip-text text-transparent font-headline">SkySnap</span>
                                 <span className="text-on-surface-variant/30 text-xs">|</span>
-                                <h2 className="text-xl font-semibold text-on-surface">Sign In</h2>
+                                <h2 className="text-xl font-semibold text-on-surface">{isSignUp ? 'Sign Up' : 'Sign In'}</h2>
                             </div>
-                            <p className="text-xs text-on-surface-variant mt-0.5">welcome back.</p>
+                            <p className="text-xs text-on-surface-variant mt-0.5">{isSignUp ? 'Create a new account.' : 'welcome back.'}</p>
                         </div>
                     </div>
                 </div>
 
                 <form className="space-y-6" onSubmit={handleSubmit}>
                     <div className="space-y-5">
+                        {isSignUp && (
+                             <div className="space-y-2 group">
+                                <Label className="text-xs font-medium text-on-surface-variant/70 ml-1" htmlFor="name">Name</Label>
+                                <div className="relative">
+                                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors text-lg" />
+                                    <Input 
+                                        className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" 
+                                        id="name" 
+                                        placeholder="Jane Doe" 
+                                        type="text"
+                                        value={name}
+                                        onChange={(e) => setName(e.target.value)} />
+                                </div>
+                            </div>
+                        )}
                         <div className="space-y-2 group">
                             <Label className="text-xs font-medium text-on-surface-variant/70 ml-1" htmlFor="email">Email</Label>
                             <div className="relative">
@@ -67,7 +98,7 @@ export function SignInForm() {
                                     className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-4 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300 focus-visible:ring-0 focus-visible:ring-offset-0" 
                                     id="email" 
                                     placeholder="name@company.com" 
-                                    type="text"
+                                    type="email"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)} />
                             </div>
@@ -90,19 +121,21 @@ export function SignInForm() {
                         </div>
                     </div>
 
-                    <div className="flex items-center justify-between px-1">
-                        <label className="flex items-center gap-2 cursor-pointer group">
-                           <div className="relative flex items-center justify-center w-4 h-4 rounded border border-outline-variant/30 bg-surface-container-lowest group-hover:border-primary/50 transition-colors">
-                                <input className="sr-only peer" type="checkbox" id="keep-signed-in" />
-                                <Check className="h-3 w-3 text-primary opacity-0 peer-checked:opacity-100 transition-opacity" />
-                            </div>
-                            <span className="text-xs text-on-surface-variant/80">Keep me signed in</span>
-                        </label>
-                        <a className="text-xs text-primary/80 hover:text-primary transition-colors font-medium" href="#">Forgot password?</a>
-                    </div>
+                    {!isSignUp && (
+                        <div className="flex items-center justify-between px-1">
+                            <label className="flex items-center gap-2 cursor-pointer group">
+                               <div className="relative flex items-center justify-center w-4 h-4 rounded border border-outline-variant/30 bg-surface-container-lowest group-hover:border-primary/50 transition-colors">
+                                    <input className="sr-only peer" type="checkbox" id="keep-signed-in" />
+                                    <Check className="h-3 w-3 text-primary opacity-0 peer-checked:opacity-100 transition-opacity" />
+                                </div>
+                                <span className="text-xs text-on-surface-variant/80">Keep me signed in</span>
+                            </label>
+                            <a className="text-xs text-primary/80 hover:text-primary transition-colors font-medium" href="#">Forgot password?</a>
+                        </div>
+                    )}
                     
                     <Button type="submit" className="w-full group rounded-xl bg-primary-container text-white py-4 h-auto font-semibold tracking-wide hover:bg-primary-container/90 transition-all duration-300 shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2">
-                        <span>Sign In</span>
+                        <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
                         <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
                     </Button>
 
@@ -119,7 +152,16 @@ export function SignInForm() {
                 </form>
 
                 <div className="mt-10 pt-6 border-t border-outline-variant/10 text-center">
-                    <p className="text-sm text-on-surface-variant/70">New here? <a className="text-primary hover:underline font-medium" href="#">Create Account</a></p>
+                     <p className="text-sm text-on-surface-variant/70">
+                        {isSignUp ? 'Already have an account?' : 'New here?'}
+                        <button 
+                            type="button" 
+                            onClick={() => setIsSignUp(!isSignUp)} 
+                            className="text-primary hover:underline font-medium ml-1 bg-transparent border-none p-0"
+                        >
+                            {isSignUp ? 'Sign In' : 'Create Account'}
+                        </button>
+                    </p>
                 </div>
             </div>
         </div>
