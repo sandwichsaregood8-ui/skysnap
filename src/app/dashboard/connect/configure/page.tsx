@@ -68,7 +68,7 @@ export default function ConfigureWifiPage() {
                         <div className="relative group">
                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface group-focus-within:text-primary transition-colors">router</span>
                             <input 
-                                className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" 
+                                className="w-full bg-surface-container-lowest border-none rounded-xl py-4 pl-12 pr-4 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary outline-none transition-all" 
                                 id="ssid" 
                                 placeholder="Enter network name" 
                                 type="text" 
@@ -87,7 +87,7 @@ export default function ConfigureWifiPage() {
                         <div className="relative group">
                             <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-on-surface group-focus-within:text-primary transition-colors">lock</span>
                             <input 
-                                className="w-full bg-surface-container-lowest border border-outline-variant/30 rounded-xl py-4 pl-12 pr-12 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" 
+                                className="w-full bg-surface-container-lowest border-none rounded-xl py-4 pl-12 pr-12 text-on-surface placeholder:text-on-surface-variant/40 focus:ring-2 focus:ring-primary outline-none transition-all" 
                                 id="password" 
                                 placeholder="••••••••" 
                                 type={showPassword ? "text" : "password"} 
@@ -116,9 +116,9 @@ export default function ConfigureWifiPage() {
                     )}
 
                     <div className="pt-4 flex flex-col gap-6 items-center">
-                        <button 
+                        <button
                             type="submit"
-                            className="button"
+                            className="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-bold py-4 px-20 rounded-full shadow-lg transition-colors duration-300 disabled:opacity-50"
                             disabled={isLoading || !ssid}
                         >
                             {isLoading ? (
@@ -130,7 +130,7 @@ export default function ConfigureWifiPage() {
                                     Connecting...
                                 </div>
                             ) : (
-                               "Done"
+                                "Done"
                             )}
                         </button>
                         <a className={"text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors " + (isLoading ? "pointer-events-none opacity-50" : "")} href="#" onClick={(e) => {e.preventDefault(); if(!isLoading) router.back()}}>
