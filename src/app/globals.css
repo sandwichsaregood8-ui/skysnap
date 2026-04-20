@@ -471,7 +471,7 @@
 }
 
 /* Additional styles to make the provided UI work */
-.font-variation-settings\:-\[\'FILL\'_1\] {
+.material-symbols-fill {
     font-variation-settings: 'FILL' 1;
 }
 

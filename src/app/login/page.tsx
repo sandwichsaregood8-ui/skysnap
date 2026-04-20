@@ -37,49 +37,129 @@ export default function LoginPage() {
             uniform float u_time;
             uniform vec2 u_resolution;
 
-            // Palette
-            const vec3 NAVY = vec3(0.02, 0.05, 0.12);
-            const vec3 INDIGO = vec3(0.08, 0.08, 0.28);
-            const vec3 VIOLET = vec3(0.18, 0.12, 0.45);
-            const vec3 LIGHT_VIOLET = vec3(0.35, 0.25, 0.7);
+            // --- Color Palette ---
+            // Define the core colors used in the shader. These are based on the application's
+            // theme to create a cohesive visual experience.
+            const vec3 NAVY = vec3(0.02, 0.05, 0.12);         // A deep, dark blue, the base of our scene.
+            const vec3 INDIGO = vec3(0.08, 0.08, 0.28);       // A richer, mid-tone blue.
+            const vec3 VIOLET = vec3(0.18, 0.12, 0.45);       // A vibrant violet for highlights.
+            const vec3 LIGHT_VIOLET = vec3(0.35, 0.25, 0.7);  // A bright violet for shimmering effects.
 
+            // --- Utility Functions ---
+            // Basic math functions that are helpful for creating patterns.
+            float random (in vec2 st) {
+                return fract(sin(dot(st.xy,
+                                     vec2(12.9898,78.233)))
+                             * 43758.5453123));
+            }
+
+            // --- Main Shader Logic ---
+            // This is the entry point for the fragment shader. It runs for every pixel
+            // on the canvas to determine its final color.
             void main() {
+                // --- UV Coordinate Normalization ---
+                // 'uv' represents the coordinate of the current pixel, normalized to a 0.0 to 1.0 range.
+                // This makes our calculations resolution-independent.
                 vec2 uv = gl_FragCoord.xy / u_resolution.xy;
+
+                // --- Time Uniform ---
+                // 't' is a time variable that animates the shader, making it dynamic.
+                // We slow it down slightly for a more calming effect.
                 float t = u_time * 0.25;
 
-                // Create layered horizontal sine waves
+                // --- Wave Generation ---
+                // We create three distinct sine waves that move horizontally across the screen.
+                // Each wave has a different frequency, speed, and amplitude, creating a layered,
+                // parallax effect that gives the background a sense of depth.
                 float wave1 = sin(uv.x * 2.5 + t * 0.8) * 0.08;
                 float wave2 = sin(uv.x * 4.0 - t * 1.2) * 0.05;
                 float wave3 = sin(uv.x * 1.5 + t * 0.4) * 0.12;
 
-                // Boundary positions for bands
+                // --- Color Band Boundaries ---
+                // The y-positions of the color bands are modulated by the sine waves.
+                // This makes the boundaries between colors appear to flow and undulate like liquid.
                 float boundary1 = 0.35 + wave1;
                 float boundary2 = 0.65 + wave2;
-                float boundary3 = 0.85 + wave3;
+                float boundary3 = 0.85 + wave3; // This boundary is kept for potential future enhancements.
 
-                // Mix colors with clean but smooth transitions
+                // --- Color Mixing ---
+                // We start with a base color (NAVY) and progressively mix in other colors
+                // based on the pixel's y-position relative to the wave boundaries.
+                // `smoothstep` is used to create a soft, anti-aliased transition between the color bands,
+                // avoiding hard, pixelated edges and creating a more blended, painterly look.
                 vec3 color = NAVY;
                 
-                // Indigo band
+                // Mix in the INDIGO band.
+                // The smoothstep function creates a soft gradient from the NAVY base to INDIGO.
                 float mask1 = smoothstep(boundary1 - 0.15, boundary1 + 0.15, uv.y);
                 color = mix(color, INDIGO, mask1);
 
-                // Violet band
+                // Mix in the VIOLET band on top of the previous result.
+                // This layering of mixed colors adds complexity to the final gradient.
                 float mask2 = smoothstep(boundary2 - 0.2, boundary2 + 0.2, uv.y);
                 color = mix(color, VIOLET, mask2);
 
-                // Subtle light ripples travelling across
+                // --- Shimmering Ripple Effect ---
+                // To add more dynamic detail, we create a high-frequency ripple pattern
+                // that travels diagonally across the scene, simulating light glinting off a surface.
+                // A sine wave is generated based on both x and y coordinates and time.
                 float ripple = sin(uv.x * 10.0 - uv.y * 5.0 + t * 2.0) * 0.5 + 0.5;
+                
+                // We use `pow` to sharpen the peaks of the ripple wave. This raises the color value
+                // to a high power, which makes the brighter parts of the wave (values closer to 1.0)
+                // stay bright while quickly diminishing the darker parts, creating the appearance
+                // of sharp, bright, shimmering highlights.
                 float rippleMask = pow(ripple, 8.0) * 0.08;
+                
+                // The ripple mask is then used to add the LIGHT_VIOLET color to the scene,
+                // creating the final shimmer.
                 color += LIGHT_VIOLET * rippleMask;
 
-                // Add depth with vertical gradient
+                // --- Starfield Simulation ---
+                // To add even more cosmic detail, we generate a simple starfield.
+                vec2 star_uv = uv * vec2(u_resolution.x/u_resolution.y, 1.0);
+                float star_t = t * 0.1;
+                
+                // Create multiple layers of stars with different densities and speeds
+                // to simulate a parallax effect, giving a sense of looking into deep space.
+                for (int i = 1; i <= 4; i++) {
+                    float star_speed = float(i) * 0.5;
+                    float star_density = float(i) * 20.0;
+                    vec2 star_grid = fract(star_uv * star_density - star_t * star_speed);
+                    
+                    // Use a random function to decide if a star should appear at a given coordinate.
+                    float star_rand = random(floor(star_uv * star_density));
+                    
+                    if (star_rand > 0.99) {
+                        // Calculate distance from the center of the "star" grid cell.
+                        float star_dist = distance(star_grid, vec2(0.5));
+                        
+                        // Create a soft glow for the star using smoothstep.
+                        float star_glow = smoothstep(0.05, 0.0, star_dist);
+                        
+                        // Make stars twinkle by modulating their brightness with a sine wave based on time.
+                        float twinkle = sin(star_t * 5.0 + star_rand * 100.0) * 0.5 + 0.5;
+                        
+                        // Add the star's color to the final output, modulated by its glow and twinkle.
+                        color += vec3(1.0) * star_glow * twinkle * 0.5;
+                    }
+                }
+
+                // --- Depth and Vignette ---
+                // To enhance the sense of depth, a vertical gradient is applied, making the
+                // bottom of the scene slightly brighter than the top. This mimics atmospheric perspective.
                 color *= mix(0.7, 1.2, uv.y);
 
-                // Vignette for focus
+                // Finally, a vignette is applied. This darkens the edges of the canvas,
+                // drawing the viewer's focus towards the center of the screen where the
+                // main content (the login card) is located.
+                // We calculate the distance of the pixel from the center...
                 float dist = length(uv - 0.5);
+                // ...and use `smoothstep` to darken pixels that are further away, creating a soft circular frame.
                 color *= smoothstep(1.2, 0.2, dist);
 
+                // --- Final Output ---
+                // The final calculated color is output to the screen. The alpha channel is set to 1.0 for full opacity.
                 gl_FragColor = vec4(color, 1.0);
             }
         `;
@@ -90,7 +170,9 @@ export default function LoginPage() {
             gl.shaderSource(shader, source);
             gl.compileShader(shader);
             if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
-                console.error(gl.getShaderInfoLog(shader));
+                console.error("An error occurred compiling the shaders: " + gl.getShaderInfoLog(shader));
+                gl.deleteShader(shader);
+                return null;
             }
             return shader;
         }
@@ -167,7 +249,7 @@ export default function LoginPage() {
                     <div className="mb-10">
                         <div className="flex items-center gap-3 mb-6">
                             <div className="w-10 h-10 rounded-lg bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg flex-shrink-0">
-                                <span className="material-symbols-outlined text-white text-xl font-variation-settings:-['FILL'_1]">cloud</span>
+                                <span className="material-symbols-outlined text-white text-xl material-symbols-fill">cloud</span>
                             </div>
                             <div>
                                 <div className="flex items-center gap-2">
@@ -193,7 +275,7 @@ export default function LoginPage() {
                                 <div className="relative rounded-xl border border-outline-variant/20">
                                     <span className="material-symbols-outlined absolute left-4 top-1/2 -translate-y-1/2 text-outline-variant group-focus-within:text-primary transition-colors text-lg">lock</span>
                                     <input value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-surface-container-lowest/30 border-0 rounded-xl py-3.5 pl-12 pr-12 text-on-surface placeholder:text-outline-variant/40 focus:ring-0 focus:outline-none transition-all duration-300" id="password" placeholder="••••••••" type={showPassword ? "text" : "password"}/>
-                                    <button onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors" type="button">
+                                    <button type="button" onClick={() => setShowPassword(!showPassword)} className="absolute right-4 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors">
                                       <span className="material-symbols-outlined text-lg">{showPassword ? 'visibility_off' : 'visibility'}</span>
                                     </button>
                                 </div>
@@ -274,9 +356,6 @@ export default function LoginPage() {
             .feature-card:hover {
                 transform: translateY(-5px);
                 box-shadow: 0 10px 20px rgba(0,0,0,0.2), 0 0 40px rgba(124, 58, 237, 0.3);
-            }
-            .font-variation-settings-\\[\\'FILL\\'_1\\] {
-                font-variation-settings: 'FILL' 1;
             }
         `}</style>
     </>
