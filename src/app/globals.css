@@ -107,7 +107,7 @@
     inset: 0;
     padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(var(--rotate, 0deg), #7c3aed, #3e3c8f, #2dd4bf, #7c3aed);
+    background: linear-gradient(var(--rotate, 0deg), hsl(320, 100%, 88%), hsl(var(--primary)), hsl(320, 100%, 88%));
     -webkit-mask: 
         linear-gradient(#fff 0 0) content-box, 
         linear-gradient(#fff 0 0);
@@ -397,20 +397,28 @@
 }
 
 .blob-card::before {
+    content: '';
+    position: absolute;
     width: 200px;
     height: 200px;
-    background: hsl(var(--primary) / 0.2);
+    background: hsl(320 100% 88% / 0.25);
     top: 0;
     left: 0;
+    z-index: 0;
+    filter: blur(50px);
     animation: sine-blob-1 18s infinite alternate ease-in-out;
 }
 
 .blob-card::after {
+    content: '';
+    position: absolute;
     width: 250px;
     height: 250px;
-    background: hsl(262, 83%, 64% / 0.2);
+    background: hsl(var(--primary) / 0.25);
     bottom: 0;
     right: 0;
+    z-index: 0;
+    filter: blur(50px);
     animation: sine-blob-2 15s infinite alternate-reverse ease-in-out;
 }
 
