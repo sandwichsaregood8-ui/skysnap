@@ -326,13 +326,13 @@
   animation-play-state: running;
 }
 .spin-blur::before {
-  background: linear-gradient(90deg, hsl(var(--primary)) 30%, #0000 50%, hsl(var(--accent)) 70%);
+  background: linear-gradient(90deg, hsl(var(--primary)) 30%, #0000 50%, hsl(var(--secondary)) 70%);
 }
 .spin-intense::before {
-  background: linear-gradient(90deg, hsl(var(--primary-foreground)) 20%, #0000 45% 55%, hsl(var(--accent-foreground)) 80%);
+  background: linear-gradient(90deg, hsl(var(--primary-foreground)) 20%, #0000 45% 55%, hsl(var(--secondary-foreground)) 80%);
 }
 .spin-inside::before {
-  background: linear-gradient(90deg, hsl(var(--primary)) 30%, #0000 45% 55%, hsl(var(--accent)) 70%);
+  background: linear-gradient(90deg, hsl(var(--primary)) 30%, #0000 45% 55%, hsl(var(--secondary)) 70%);
 }
 @keyframes speen {
   0% {
