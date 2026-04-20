@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -9,8 +9,9 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth, useFirestore } from '@/firebase';
 import { 
-    GoogleAuthProvider, 
-    signInWithPopup, 
+    GoogleAuthProvider,
+    signInWithRedirect,
+    getRedirectResult,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword
 } from 'firebase/auth';
@@ -32,43 +33,60 @@ export function SignInForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true); // Start true to check for redirect
     const router = useRouter();
     const { toast } = useToast();
     const auth = useAuth();
     const firestore = useFirestore();
 
+    useEffect(() => {
+        if (!auth || !firestore) {
+            setIsLoading(false);
+            return;
+        };
+
+        const handleRedirectResult = async () => {
+            try {
+                const result = await getRedirectResult(auth);
+                if (result) {
+                    // User signed in via redirect.
+                    const user = result.user;
+                    const userRef = doc(firestore, `userProfiles/${user.uid}`);
+                    await setDoc(userRef, {
+                        id: user.uid,
+                        displayName: user.displayName,
+                        email: user.email,
+                        photoURL: user.photoURL,
+                        lastSignedInAt: serverTimestamp()
+                    }, { merge: true });
+                    
+                    toast({
+                        title: "Signed In Successfully!",
+                        description: "Welcome back.",
+                    });
+                    router.push('/dashboard');
+                } else {
+                    // No user from redirect, so we're done loading for this check.
+                    setIsLoading(false);
+                }
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Google Sign-In Failed",
+                    description: error.message || "An unexpected error occurred.",
+                });
+                setIsLoading(false);
+            }
+        };
+
+        handleRedirectResult();
+    }, [auth, firestore, router, toast]);
+
     const handleGoogleSignIn = async () => {
-        if (!auth || !firestore) return;
+        if (!auth) return;
         setIsLoading(true);
         const provider = new GoogleAuthProvider();
-        try {
-            const userCredential = await signInWithPopup(auth, provider);
-            const user = userCredential.user;
-            const userRef = doc(firestore, `userProfiles/${user.uid}`);
-            
-            await setDoc(userRef, {
-                id: user.uid,
-                displayName: user.displayName,
-                email: user.email,
-                photoURL: user.photoURL,
-                lastSignedInAt: serverTimestamp()
-            }, { merge: true });
-
-            toast({
-                title: "Signed In Successfully!",
-                description: "Welcome back.",
-            });
-            router.push('/dashboard');
-        } catch (error: any) {
-            toast({
-                variant: "destructive",
-                title: "Google Sign-In Failed",
-                description: error.message || "An unexpected error occurred.",
-            });
-        } finally {
-            setIsLoading(false);
-        }
+        await signInWithRedirect(auth, provider);
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
