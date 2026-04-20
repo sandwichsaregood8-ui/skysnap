@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
+import { useEffect } from "react";
 import {
     Sidebar,
     SidebarProvider,
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/sidebar";
 import { Button } from "@/components/ui/button";
 import { Home, GalleryVertical, Camera, Users, LogOut, Gem } from "lucide-react";
+import { useUser, useAuth } from "@/firebase";
 
 export default function DashboardLayout({
     children,
@@ -22,6 +24,35 @@ export default function DashboardLayout({
     children: React.ReactNode;
 }) {
     const pathname = usePathname();
+    const { user, isUserLoading } = useUser();
+    const auth = useAuth();
+    const router = useRouter();
+
+    useEffect(() => {
+        if (!isUserLoading && !user) {
+            router.push('/');
+        }
+    }, [user, isUserLoading, router]);
+
+    const handleLogout = async () => {
+        if (auth) {
+            await auth.signOut();
+            router.push('/');
+        }
+    };
+
+    if (isUserLoading || !user) {
+        return (
+          <div className="flex items-center justify-center h-screen bg-background">
+            <div className="flex flex-col items-center gap-4">
+                <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg animate-pulse">
+                    <Camera className="text-white" />
+                </div>
+                <p className="text-on-surface-variant">Loading session...</p>
+            </div>
+          </div>
+        );
+    }
 
     return (
         <>
@@ -67,11 +98,9 @@ export default function DashboardLayout({
                         <div className="flex flex-col gap-2 px-2">
                             <SidebarMenu>
                                 <SidebarMenuItem>
-                                    <SidebarMenuButton asChild>
-                                        <Link href="/">
-                                            <LogOut />
-                                            <span>Logout</span>
-                                        </Link>
+                                    <SidebarMenuButton onClick={handleLogout}>
+                                        <LogOut />
+                                        <span>Logout</span>
                                     </SidebarMenuButton>
                                 </SidebarMenuItem>
                             </SidebarMenu>

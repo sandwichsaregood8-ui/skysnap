@@ -7,6 +7,14 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
+import { useAuth, useFirestore } from '@/firebase';
+import { 
+    GoogleAuthProvider, 
+    signInWithPopup, 
+    createUserWithEmailAndPassword,
+    signInWithEmailAndPassword
+} from 'firebase/auth';
+import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
 const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <svg className="w-5 h-5" viewBox="0 0 24 24" {...props}>
@@ -24,32 +32,97 @@ export function SignInForm() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
+    const [isLoading, setIsLoading] = useState(false);
     const router = useRouter();
     const { toast } = useToast();
+    const auth = useAuth();
+    const firestore = useFirestore();
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        if (isSignUp) {
-            // Handle Sign Up
+    const handleGoogleSignIn = async () => {
+        if (!auth || !firestore) return;
+        setIsLoading(true);
+        const provider = new GoogleAuthProvider();
+        try {
+            const userCredential = await signInWithPopup(auth, provider);
+            const user = userCredential.user;
+            const userRef = doc(firestore, `userProfiles/${user.uid}`);
+            
+            await setDoc(userRef, {
+                id: user.uid,
+                displayName: user.displayName,
+                email: user.email,
+                photoURL: user.photoURL,
+                lastSignedInAt: serverTimestamp()
+            }, { merge: true });
+
             toast({
-                title: "Account Created!",
-                description: "You can now sign in with your new credentials.",
+                title: "Signed In Successfully!",
+                description: "Welcome back.",
             });
-            setIsSignUp(false); // Switch to sign-in form
-            // Clear fields
-            setName('');
-            setEmail('');
-            setPassword('');
-        } else {
-            // Handle Sign In
-            if (email === '000' && password === '000') {
+            router.push('/dashboard');
+        } catch (error: any) {
+            toast({
+                variant: "destructive",
+                title: "Google Sign-In Failed",
+                description: error.message || "An unexpected error occurred.",
+            });
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!auth || !firestore) return;
+
+        setIsLoading(true);
+        if (isSignUp) {
+            try {
+                const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const userRef = doc(firestore, `userProfiles/${user.uid}`);
+                
+                await setDoc(userRef, {
+                    id: user.uid,
+                    displayName: name,
+                    email: email,
+                    createdAt: serverTimestamp(),
+                    lastSignedInAt: serverTimestamp()
+                });
+
+                toast({
+                    title: "Account Created!",
+                    description: "You have been signed in.",
+                });
                 router.push('/dashboard');
-            } else {
+            } catch (error: any) {
+                toast({
+                    variant: "destructive",
+                    title: "Sign Up Failed",
+                    description: error.message,
+                });
+            } finally {
+                setIsLoading(false);
+            }
+        } else {
+            try {
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
+                const user = userCredential.user;
+                const userRef = doc(firestore, `userProfiles/${user.uid}`);
+                
+                await setDoc(userRef, {
+                    lastSignedInAt: serverTimestamp()
+                }, { merge: true });
+
+                router.push('/dashboard');
+            } catch (error: any) {
                 toast({
                     variant: "destructive",
                     title: "Login Failed",
                     description: "Invalid email or password.",
                 });
+            } finally {
+                setIsLoading(false);
             }
         }
     };
@@ -86,7 +159,8 @@ export function SignInForm() {
                                         placeholder="Jane Doe" 
                                         type="text"
                                         value={name}
-                                        onChange={(e) => setName(e.target.value)} />
+                                        onChange={(e) => setName(e.target.value)} 
+                                        disabled={isLoading} />
                                 </div>
                             </div>
                         )}
@@ -100,7 +174,8 @@ export function SignInForm() {
                                     placeholder="name@company.com" 
                                     type="email"
                                     value={email}
-                                    onChange={(e) => setEmail(e.target.value)} />
+                                    onChange={(e) => setEmail(e.target.value)}
+                                    disabled={isLoading} />
                             </div>
                         </div>
                         <div className="space-y-2 group">
@@ -113,7 +188,8 @@ export function SignInForm() {
                                     placeholder="••••••••" 
                                     type={showPassword ? "text" : "password"}
                                     value={password}
-                                    onChange={(e) => setPassword(e.target.value)} />
+                                    onChange={(e) => setPassword(e.target.value)}
+                                    disabled={isLoading} />
                                 <Button variant="ghost" size="icon" className="absolute right-2 top-1/2 -translate-y-1/2 text-outline-variant hover:text-on-surface transition-colors h-auto w-auto p-1 hover:bg-transparent" type="button" onClick={() => setShowPassword(!showPassword)}>
                                     {showPassword ? <EyeOff className="h-5 w-5" /> : <Eye className="h-5 w-5" />}
                                 </Button>
@@ -134,9 +210,9 @@ export function SignInForm() {
                         </div>
                     )}
                     
-                    <Button type="submit" className="w-full group rounded-xl bg-primary-container text-white py-4 h-auto font-semibold tracking-wide hover:bg-primary-container/90 transition-all duration-300 shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2">
-                        <span>{isSignUp ? 'Create Account' : 'Sign In'}</span>
-                        <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" />
+                    <Button type="submit" className="w-full group rounded-xl bg-primary-container text-white py-4 h-auto font-semibold tracking-wide hover:bg-primary-container/90 transition-all duration-300 shadow-lg shadow-primary-container/20 flex items-center justify-center gap-2" disabled={isLoading}>
+                        {isLoading ? 'Processing...' : (isSignUp ? 'Create Account' : 'Sign In')}
+                        {!isLoading && <ArrowRight className="h-5 w-5 transform group-hover:translate-x-1 transition-transform" />}
                     </Button>
 
                     <div className="relative flex items-center py-2">
@@ -145,7 +221,7 @@ export function SignInForm() {
                         <div className="flex-grow border-t border-outline-variant/10"></div>
                     </div>
                     
-                    <Button type="button" variant="outline" className="w-full flex items-center justify-center gap-3 px-4 py-3.5 h-auto rounded-xl border-outline-variant/20 bg-surface-container-lowest/30 hover:bg-surface-container-lowest/50 transition-all duration-300 group">
+                    <Button type="button" variant="outline" className="w-full flex items-center justify-center gap-3 px-4 py-3.5 h-auto rounded-xl border-outline-variant/20 bg-surface-container-lowest/30 hover:bg-surface-container-lowest/50 transition-all duration-300 group" onClick={handleGoogleSignIn} disabled={isLoading}>
                         <GoogleIcon />
                         <span className="text-sm font-medium text-on-surface">Sign in with Google</span>
                     </Button>
@@ -158,6 +234,7 @@ export function SignInForm() {
                             type="button" 
                             onClick={() => setIsSignUp(!isSignUp)} 
                             className="text-primary hover:underline font-medium ml-1 bg-transparent border-none p-0"
+                            disabled={isLoading}
                         >
                             {isSignUp ? 'Sign In' : 'Create Account'}
                         </button>
