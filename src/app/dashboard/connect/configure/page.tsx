@@ -52,7 +52,6 @@ export default function ConfigureWifiPage() {
         <div className="sine-bg min-h-screen flex flex-col items-center justify-center p-6 relative">
             <div className="card blob-card w-full max-w-md z-10">
                 <div className="relative z-10 w-full flex flex-col items-center">
-                    <div className="card__border"></div>
                     <div className="w-full">
                         <div className="card_title__container">
                             <span className="card_title">Configure Wi-Fi</span>
@@ -121,7 +120,7 @@ export default function ConfigureWifiPage() {
                         <div className="pt-4 flex flex-col gap-6 items-center">
                             <button
                                 type="submit"
-                                className="bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-bold py-4 px-20 rounded-full shadow-lg transition-colors duration-300 disabled:opacity-50"
+                                className="relative chromatic-border bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-bold py-4 px-20 rounded-full shadow-lg transition-colors duration-300 disabled:opacity-50 active:scale-95"
                                 disabled={isLoading || !ssid}
                             >
                                 {isLoading ? (
