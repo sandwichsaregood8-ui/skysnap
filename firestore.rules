@@ -69,8 +69,8 @@ service cloud.firestore {
 
     /**
      * hasValidUserProfileDataOnCreate
-     * Validates relational integrity for a new UserProfile.
-     * Ensures the document's internal `id` matches its path `{userId}`.
+     * Ensures the new UserProfile document's internal `id` matches its path `{userId}`.
+     * This is a critical relational integrity check for new user profiles.
      * @param userId The wildcard userId from the path.
      */
     function hasValidUserProfileDataOnCreate(userId) {
@@ -78,12 +78,16 @@ service cloud.firestore {
     }
 
     /**
-     * isUserProfileOwnerFieldImmutable
-     * Ensures the UserProfile's `id` field cannot be changed after creation.
-     * Allows updates that don't include the 'id' field.
+     * areUserProfileImmutableFieldsUnchanged
+     * Ensures that core, immutable fields of a UserProfile are not modified on update.
+     * Allows updates that do not include these fields (e.g., updating only `displayName`).
+     * - 'id': The primary identifier, must never change.
+     * - 'createdAt': The creation timestamp, must never change.
      */
-    function isUserProfileOwnerFieldImmutable() {
-      return !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
+    function areUserProfileImmutableFieldsUnchanged() {
+      let isIdUnchanged = !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
+      let isCreatedAtUnchanged = !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt;
+      return isIdUnchanged && isCreatedAtUnchanged;
     }
 
     /**
@@ -144,7 +148,7 @@ service cloud.firestore {
       allow get: if isOwner(userId);
       allow list: if false; // CRITICAL: Prevents listing all users
       allow create: if isOwner(userId) && hasValidUserProfileDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isUserProfileOwnerFieldImmutable();
+      allow update: if isExistingOwner(userId) && areUserProfileImmutableFieldsUnchanged();
       allow delete: if isExistingOwner(userId);
     }
 
