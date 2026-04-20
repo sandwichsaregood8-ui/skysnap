@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -38,6 +39,7 @@ export function SignInForm() {
     const { toast } = useToast();
     const auth = useAuth();
     const firestore = useFirestore();
+    const router = useRouter();
 
     useEffect(() => {
         if (!auth || !firestore) {
@@ -78,21 +80,23 @@ export function SignInForm() {
                             description: `Welcome back, ${user.displayName}!`,
                         });
                     }
-                    // The redirect to /dashboard is handled by page.tsx's useUser hook
+                    router.push('/dashboard');
                 }
             } catch (error: any) {
-                toast({
-                    variant: "destructive",
-                    title: "Google Sign-In Failed",
-                    description: error.message || "An unexpected error occurred.",
-                });
+                if (error.code !== 'auth/unauthorized-domain') {
+                    toast({
+                        variant: "destructive",
+                        title: "Google Sign-In Failed",
+                        description: error.message || "An unexpected error occurred.",
+                    });
+                }
             } finally {
                 setIsLoading(false);
             }
         };
 
         processRedirectResult();
-    }, [auth, firestore, toast]);
+    }, [auth, firestore, toast, router]);
 
     const handleGoogleSignIn = async () => {
         if (!auth) return;
