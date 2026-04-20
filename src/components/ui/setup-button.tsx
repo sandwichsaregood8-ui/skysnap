@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useRouter } from 'next/navigation';
@@ -110,7 +109,7 @@ export function SetupButton() {
             noise = (noise + 1.0) * 0.5;
 
             // Colors from the app theme (dark mode)
-            vec3 color_bg = vec3(0.086, 0.078, 0.11); // #16141a
+            vec3 color_bg = vec3(0.1, 0.1, 0.2);
             vec3 color1 = vec3(0.098, 0.223, 0.584); // #1954e5
             vec3 color2 = vec3(0.486, 0.227, 0.929); // #7c3aed
 
@@ -199,8 +198,8 @@ export function SetupButton() {
       variant="outline"
       className="relative overflow-hidden w-full h-[200px] rounded-[28px] text-lg text-on-surface-variant hover:text-on-surface hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 border-outline-variant/30 bg-transparent p-0 hover:bg-transparent"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full -z-10" />
-      <div className="z-10 flex flex-col items-center justify-center gap-3">
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full" />
+      <div className="relative z-10 flex flex-col items-center justify-center gap-3">
         <Plus className="h-10 w-10" />
         <span>Set up or add new device</span>
       </div>
