@@ -1,11 +1,11 @@
 import type {Metadata} from 'next';
 import './globals.css';
 import { Toaster } from "@/components/ui/toaster";
-import { FirebaseClientProvider } from '@/firebase/client-provider';
+import { AuthProvider } from '@/context/AuthContext';
 
 export const metadata: Metadata = {
-  title: 'SkySnap - Sign In',
-  description: 'Welcome back to SkySnap.',
+  title: 'SkySnap',
+  description: 'Welcome to SkySnap.',
 };
 
 export default function RootLayout({
@@ -24,9 +24,9 @@ export default function RootLayout({
         <link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
       </head>
       <body className="font-body bg-background text-on-surface selection:bg-primary-container selection:text-white overflow-x-hidden">
-        <FirebaseClientProvider>
+        <AuthProvider>
           {children}
-        </FirebaseClientProvider>
+        </AuthProvider>
         <Toaster />
       </body>
     </html>
