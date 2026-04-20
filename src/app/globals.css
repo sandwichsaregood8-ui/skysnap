@@ -249,6 +249,11 @@
 .material-symbols-outlined {
     font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
 }
+
+.material-symbols-fill {
+    font-variation-settings: 'FILL' 1;
+}
+
 .neon-border {
     position: relative;
     padding: 1px;
@@ -471,9 +476,6 @@
 }
 
 /* Additional styles to make the provided UI work */
-.material-symbols-fill {
-    font-variation-settings: 'FILL' 1;
-}
 
 .text-on-surface-variant\/30 {
     color: hsl(var(--on-surface-variant) / 0.3);
