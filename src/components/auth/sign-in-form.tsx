@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
 import { Mail, Lock, Eye, EyeOff, Check, ArrowRight, Cloud, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -13,7 +12,8 @@ import {
     signInWithRedirect,
     getRedirectResult,
     createUserWithEmailAndPassword,
-    signInWithEmailAndPassword
+    signInWithEmailAndPassword,
+    getAdditionalUserInfo
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -34,7 +34,6 @@ export function SignInForm() {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Start true to check for redirect
-    const router = useRouter();
     const { toast } = useToast();
     const auth = useAuth();
     const firestore = useFirestore();
@@ -46,28 +45,29 @@ export function SignInForm() {
         };
 
         const handleRedirectResult = async () => {
+            setIsLoading(true);
             try {
                 const result = await getRedirectResult(auth);
                 if (result) {
                     // User signed in via redirect.
                     const user = result.user;
+                    const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
                     const userRef = doc(firestore, `userProfiles/${user.uid}`);
+                    
                     await setDoc(userRef, {
                         id: user.uid,
                         displayName: user.displayName,
                         email: user.email,
                         photoURL: user.photoURL,
-                        lastSignedInAt: serverTimestamp()
+                        lastSignedInAt: serverTimestamp(),
+                        ...(isNewUser && { createdAt: serverTimestamp() })
                     }, { merge: true });
                     
                     toast({
-                        title: "Signed In Successfully!",
-                        description: "Welcome back.",
+                        title: isNewUser ? "Account Created!" : "Signed In Successfully!",
+                        description: "Welcome!",
                     });
-                    router.push('/dashboard');
-                } else {
-                    // No user from redirect, so we're done loading for this check.
-                    setIsLoading(false);
+                    // No router.push, page.tsx will handle the redirect.
                 }
             } catch (error: any) {
                 toast({
@@ -75,12 +75,13 @@ export function SignInForm() {
                     title: "Google Sign-In Failed",
                     description: error.message || "An unexpected error occurred.",
                 });
+            } finally {
                 setIsLoading(false);
             }
         };
 
         handleRedirectResult();
-    }, [auth, firestore, router, toast]);
+    }, [auth, firestore, toast]);
 
     const handleGoogleSignIn = async () => {
         if (!auth) return;
@@ -112,7 +113,7 @@ export function SignInForm() {
                     title: "Account Created!",
                     description: "You have been signed in.",
                 });
-                router.push('/dashboard');
+                // No router.push, page.tsx will handle the redirect.
             } catch (error: any) {
                 toast({
                     variant: "destructive",
@@ -124,20 +125,23 @@ export function SignInForm() {
             }
         } else {
             try {
-                const userCredential = await signInWithEmailAndPassword(auth, email, password);
-                const user = userCredential.user;
-                const userRef = doc(firestore, `userProfiles/${user.uid}`);
-                
-                await setDoc(userRef, {
-                    lastSignedInAt: serverTimestamp()
-                }, { merge: true });
+                await signInWithEmailAndPassword(auth, email, password);
+                // No router.push, page.tsx will handle the redirect after onAuthStateChanged fires.
+                // We can update the lastSignedInAt timestamp here, but it's better to do it
+                // in a more centralized place if possible, or trigger it via a cloud function.
+                // For simplicity, we can do it here.
+                if (auth.currentUser) {
+                    const userRef = doc(firestore, `userProfiles/${auth.currentUser.uid}`);
+                    await setDoc(userRef, {
+                        lastSignedInAt: serverTimestamp()
+                    }, { merge: true });
+                }
 
-                router.push('/dashboard');
             } catch (error: any) {
                 toast({
                     variant: "destructive",
                     title: "Login Failed",
-                    description: "Invalid email or password.",
+                    description: "Account not found or password incorrect. Please create an account to sign in.",
                 });
             } finally {
                 setIsLoading(false);
@@ -262,3 +266,5 @@ export function SignInForm() {
         </div>
     );
 }
+
+    
