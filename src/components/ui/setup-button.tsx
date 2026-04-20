@@ -109,9 +109,9 @@ export function SetupButton() {
             noise = (noise + 1.0) * 0.5;
 
             // Colors from the app theme (dark mode)
-            vec3 color_bg = vec3(0.043, 0.075, 0.149); // background: hsl(223, 62%, 10%)
-            vec3 color1 = vec3(0.243, 0.235, 0.561); // secondary-container: #3e3c8f
-            vec3 color2 = vec3(0.486, 0.227, 0.929); // primary-container: #7c3aed
+            vec3 color_bg = vec3(0.06, 0.05, 0.15); // A very dark desaturated purple
+            vec3 color1 = vec3(0.1, 0.05, 0.25); // A darker indigo
+            vec3 color2 = vec3(0.4, 0.1, 0.6);   // A vibrant violet
 
             // Mix colors for a soft, diffused look
             vec3 color = mix(color_bg, color1, smoothstep(0.4, 0.6, noise));
@@ -196,10 +196,9 @@ export function SetupButton() {
     <Button
       onClick={handleClick}
       variant="outline"
-      className="group relative overflow-hidden w-full h-[200px] rounded-[28px] text-lg text-on-surface-variant hover:text-on-surface hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 border-outline-variant/30 bg-transparent p-0"
+      className="relative overflow-hidden w-full h-[200px] rounded-[28px] text-lg text-on-surface-variant hover:text-on-surface hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 border-outline-variant/30 bg-transparent p-0"
     >
       <canvas ref={canvasRef} className="absolute inset-0 w-full h-full -z-20" />
-      <div className="absolute inset-0 bg-transparent group-hover:bg-black/20 transition-colors duration-300 -z-10"></div>
       <div className="z-10 flex flex-col items-center justify-center gap-3">
         <Plus className="h-10 w-10" />
         <span>Set up or add new device</span>
