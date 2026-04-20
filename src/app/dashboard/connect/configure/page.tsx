@@ -121,7 +121,7 @@ export default function ConfigureWifiPage() {
                             <button
                                 type="submit"
                                 className="relative chromatic-border bg-surface-container-lowest hover:bg-surface-container-low text-on-surface font-bold py-4 px-20 rounded-full shadow-lg transition-colors duration-300 disabled:opacity-50 active:scale-95"
-                                disabled={isLoading || !ssid}
+                                disabled={isLoading || !ssid || !password}
                             >
                                 {isLoading ? (
                                     <div className='flex items-center justify-center'>
