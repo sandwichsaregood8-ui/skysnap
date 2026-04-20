@@ -30,7 +30,7 @@ export default function Home() {
                     <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg animate-pulse">
                         <Camera className="text-white" />
                     </div>
-                    <p className="text-on-surface-variant">Loading...</p>
+                    <p className="text-on-surface-variant">Loading session...</p>
                 </div>
             </div>
         </div>

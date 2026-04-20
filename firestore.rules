@@ -80,7 +80,9 @@ service cloud.firestore {
     /**
      * areUserProfileImmutableFieldsUnchanged
      * Ensures that core, immutable fields of a UserProfile are not modified on update.
-     * Allows updates that do not include these fields (e.g., updating only `displayName`).
+     * This rule allows partial updates (like changing `displayName` or `lastSignedInAt`)
+     * by checking if an immutable field is either not present in the update data,
+     * or if it is present but its value has not changed.
      * - 'id': The primary identifier, must never change.
      * - 'createdAt': The creation timestamp, must never change.
      */

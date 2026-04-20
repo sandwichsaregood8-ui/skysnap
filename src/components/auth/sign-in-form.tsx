@@ -54,20 +54,31 @@ export function SignInForm() {
                     const isNewUser = getAdditionalUserInfo(result)?.isNewUser;
                     const userRef = doc(firestore, `userProfiles/${user.uid}`);
                     
-                    await setDoc(userRef, {
-                        id: user.uid,
-                        displayName: user.displayName,
-                        email: user.email,
-                        photoURL: user.photoURL,
-                        lastSignedInAt: serverTimestamp(),
-                        ...(isNewUser && { createdAt: serverTimestamp() })
-                    }, { merge: true });
-                    
-                    toast({
-                        title: isNewUser ? "Account Created!" : "Signed In Successfully!",
-                        description: `Welcome, ${user.displayName}!`,
-                    });
-                    // The redirect to /dashboard is handled by page.tsx
+                    if (isNewUser) {
+                        // Create a new profile document for a new user
+                        await setDoc(userRef, {
+                            id: user.uid,
+                            displayName: user.displayName,
+                            email: user.email,
+                            photoURL: user.photoURL,
+                            createdAt: serverTimestamp(),
+                            lastSignedInAt: serverTimestamp(),
+                        });
+                        toast({
+                            title: "Account Created!",
+                            description: `Welcome, ${user.displayName}!`,
+                        });
+                    } else {
+                        // For returning users, just update their last sign-in time
+                        await setDoc(userRef, {
+                            lastSignedInAt: serverTimestamp()
+                        }, { merge: true });
+                        toast({
+                            title: "Signed In Successfully!",
+                            description: `Welcome back, ${user.displayName}!`,
+                        });
+                    }
+                    // The redirect to /dashboard is handled by page.tsx's useUser hook
                 }
             } catch (error: any) {
                 toast({
