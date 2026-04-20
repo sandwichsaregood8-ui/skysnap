@@ -80,9 +80,10 @@ service cloud.firestore {
     /**
      * isUserProfileOwnerFieldImmutable
      * Ensures the UserProfile's `id` field cannot be changed after creation.
+     * Allows updates that don't include the 'id' field.
      */
     function isUserProfileOwnerFieldImmutable() {
-      return request.resource.data.id == resource.data.id;
+      return !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
     }
 
     /**
@@ -98,9 +99,10 @@ service cloud.firestore {
     /**
      * isDeviceOwnerFieldImmutable
      * Ensures the Device's `userId` field cannot be changed after creation.
+     * Allows updates that don't include the 'userId' field.
      */
     function isDeviceOwnerFieldImmutable() {
-      return request.resource.data.userId == resource.data.userId;
+      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
     }
 
     /**
@@ -118,11 +120,13 @@ service cloud.firestore {
     /**
      * areCaptureOwnerFieldsImmutable
      * Ensures the Capture's `userId` and `deviceId` fields cannot be changed.
+     * Allows updates that don't include these fields.
      */
     function areCaptureOwnerFieldsImmutable() {
       let incoming = request.resource.data;
       let existing = resource.data;
-      return incoming.userId == existing.userId && incoming.deviceId == existing.deviceId;
+      return (!('userId' in incoming) || incoming.userId == existing.userId)
+          && (!('deviceId' in incoming) || incoming.deviceId == existing.deviceId);
     }
 
     //-------------------------------------------------------------------------
