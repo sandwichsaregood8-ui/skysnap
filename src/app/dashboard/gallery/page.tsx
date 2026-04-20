@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
@@ -137,7 +136,7 @@ export default function GalleryPage() {
     return (
         <div className="bg-transparent text-on-surface min-h-screen">
             <canvas id="gradient-canvas" ref={canvasRef}></canvas>
-            <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4 bg-[#0B1326]/70 backdrop-blur-2xl shadow-[0_20px_50px_rgba(11,19,38,0.5)]">
+            <header className="fixed top-0 w-full z-50 flex justify-between items-center px-6 py-4">
                 <div className="flex items-center gap-4">
                     <Button onClick={toggleSidebar} variant="ghost" size="icon" className="p-2 rounded-full hover:bg-white/5 transition-colors active:scale-95 duration-200">
                         <Menu className="text-primary" />
