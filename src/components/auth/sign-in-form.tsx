@@ -139,17 +139,27 @@ export function SignInForm() {
                 setIsLoading(false);
             }
         } else {
+            setIsLoading(true);
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // On success, onAuthStateChanged will fire and page.tsx will redirect.
+                // On success, the onAuthStateChanged listener in page.tsx will handle the redirect.
+                
+                // Now, attempt to update the user's last sign-in time.
+                // We chain a .catch() to this promise so that if it fails
+                // (e.g., due to security rules), it doesn't trigger the main catch block
+                // and wrongly display a "Login Failed" message.
                 if (auth.currentUser) {
                     const userRef = doc(firestore, `userProfiles/${auth.currentUser.uid}`);
-                    await setDoc(userRef, {
+                    setDoc(userRef, {
                         lastSignedInAt: serverTimestamp()
-                    }, { merge: true });
+                    }, { merge: true }).catch(profileError => {
+                        // Log this error to the console for debugging, but don't show the user.
+                        // The user is successfully logged in at this point.
+                        console.error("Silent error: Failed to update last sign-in time.", profileError);
+                    });
                 }
-
             } catch (error: any) {
+                // This catch block now only handles actual authentication failures.
                 let description = "An unexpected error occurred.";
                 if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
                     description = "Account not found or password incorrect. Please create an account to sign in.";
