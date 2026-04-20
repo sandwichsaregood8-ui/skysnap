@@ -105,6 +105,8 @@
   }
   body {
     @apply bg-background text-foreground;
+    overflow: hidden;
+    margin: 0;
   }
 }
 
@@ -115,9 +117,10 @@
 }
 
 .glass-card {
-    backdrop-filter: blur(32px) saturate(180%);
-    -webkit-backdrop-filter: blur(32px) saturate(180%);
-    background-color: rgba(34, 42, 62, 0.75);
+    background: rgba(19, 27, 46, 0.4);
+    backdrop-filter: blur(40px);
+    -webkit-backdrop-filter: blur(40px);
+    position: relative;
 }
 
 .chromatic-border {
@@ -130,9 +133,9 @@
     position: absolute;
     z-index: -1;
     inset: 0;
-    padding: 2px;
+    padding: 1px;
     border-radius: inherit;
-    background: linear-gradient(var(--rotate, 0deg), hsl(320, 100%, 88%), hsl(var(--primary)), hsl(280, 80%, 70%));
+    background: linear-gradient(var(--rotate, 0deg), #7c3aed, #3e3c8f, #2dd4bf, #7c3aed);
     -webkit-mask: 
         linear-gradient(#fff 0 0) content-box, 
         linear-gradient(#fff 0 0);
@@ -141,7 +144,7 @@
         linear-gradient(#fff 0 0);
     -webkit-mask-composite: xor;
     mask-composite: exclude;
-    animation: rotate-gradient 24s linear infinite;
+    animation: rotate-gradient 6s linear infinite;
 }
 
 @keyframes rotate-gradient {
