@@ -1,0 +1,234 @@
+{
+  "entities": {
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents a user of the SkySnap application, storing their essential profile information.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the UserProfile entity, corresponding to Firebase Authentication UID."
+        },
+        "email": {
+          "type": "string",
+          "description": "The user's email address, primarily used for authentication.",
+          "format": "email"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The user's chosen display name."
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the user account was created.",
+          "format": "date-time"
+        },
+        "lastSignedInAt": {
+          "type": "string",
+          "description": "Timestamp of the user's last successful sign-in.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "email",
+        "createdAt"
+      ]
+    },
+    "Device": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Device",
+      "type": "object",
+      "description": "Represents an ESP32 camera device registered and owned by a user in the SkySnap ecosystem.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Device entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the owning UserProfile. (Relationship: UserProfile 1:N Device)"
+        },
+        "name": {
+          "type": "string",
+          "description": "A user-defined, friendly name for the device (e.g., 'Backyard Camera')."
+        },
+        "model": {
+          "type": "string",
+          "description": "The model identifier of the ESP32 camera device (e.g., 'SkySnap ESP32S3')."
+        },
+        "serialNumber": {
+          "type": "string",
+          "description": "The unique hardware serial number of the device."
+        },
+        "firmwareVersion": {
+          "type": "string",
+          "description": "The current firmware version running on the device."
+        },
+        "lastSeenAt": {
+          "type": "string",
+          "description": "Timestamp when the device last successfully communicated with the backend.",
+          "format": "date-time"
+        },
+        "wifiSsid": {
+          "type": "string",
+          "description": "The SSID (network name) of the Wi-Fi network the device is currently connected to (not the password)."
+        },
+        "processingMode": {
+          "type": "string",
+          "description": "The preferred image processing mode for this device: 'cloud' for Firebase Cloud Functions or 'local' for phone-side processing.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Timestamp when the device was initially registered.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "name",
+        "model",
+        "serialNumber",
+        "firmwareVersion",
+        "createdAt"
+      ]
+    },
+    "Capture": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Capture",
+      "type": "object",
+      "description": "Represents a single multi-frame image capture event performed by a SkySnap device, including its processing status and output.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the Capture entity."
+        },
+        "userId": {
+          "type": "string",
+          "description": "Reference to the UserProfile who owns this capture. (Relationship: UserProfile 1:N Capture)"
+        },
+        "deviceId": {
+          "type": "string",
+          "description": "Reference to the Device that performed this capture. (Relationship: Device 1:N Capture)"
+        },
+        "status": {
+          "type": "string",
+          "description": "The current processing status of the capture. Indicates whether it's awaiting processing, actively being processed, completed, or encountered an error.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp when the image capture was initiated on the device.",
+          "format": "date-time"
+        },
+        "frameCount": {
+          "type": "number",
+          "description": "The number of individual raw frames captured in this burst sequence."
+        },
+        "exposureValues": {
+          "type": "array",
+          "description": "An array of numerical values representing the exposure settings (e.g., shutter speeds, EV steps, or ISO values) for each raw frame captured.",
+          "items": {
+            "type": "number"
+          }
+        },
+        "processedImageUrl": {
+          "type": "string",
+          "description": "The public URL to the final, high-quality processed image stored in Firebase Storage.",
+          "format": "uri"
+        },
+        "errorDetails": {
+          "type": "string",
+          "description": "Detailed error message if the capture processing failed (only present if status is 'error')."
+        }
+      },
+      "required": [
+        "id",
+        "userId",
+        "deviceId",
+        "status",
+        "timestamp",
+        "frameCount",
+        "exposureValues"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "anonymous"
+    ]
+  },
+  "firestore": {
+    "structure": [
+      {
+        "path": "/userProfiles/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores individual user profile information. Document IDs (`userId`) match the Firebase Authentication UID. Includes denormalized 'id' field matching the document ID for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the user, matching Firebase Authentication UID."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/userProfiles/{userId}/devices/{deviceId}",
+        "definition": {
+          "entityName": "Device",
+          "schema": {
+            "$ref": "#/backend/entities/Device"
+          },
+          "description": "Stores details for each ESP32 camera device owned by a specific user. Nested under the owning user's profile. Includes denormalized 'userId' field matching the parent's ID for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the owning user, matching Firebase Authentication UID."
+            },
+            {
+              "name": "deviceId",
+              "description": "The unique identifier for the device."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/userProfiles/{userId}/devices/{deviceId}/captures/{captureId}",
+        "definition": {
+          "entityName": "Capture",
+          "schema": {
+            "$ref": "#/backend/entities/Capture"
+          },
+          "description": "Stores metadata for each multi-frame image capture event performed by a specific device, owned by a user. Nested under the device. Includes denormalized 'userId' and 'deviceId' fields matching ancestral IDs for authorization independence.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "The unique identifier of the owning user, matching Firebase Authentication UID."
+            },
+            {
+              "name": "deviceId",
+              "description": "The unique identifier of the device that performed the capture."
+            },
+            {
+              "name": "captureId",
+              "description": "The unique identifier for the specific capture event."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The recommended Firestore structure for SkySnap leverages a strict hierarchical model based on user ownership, ensuring high security, scalability, and debuggability. All user-specific data is nested under a top-level `userProfiles` collection, where each document's ID corresponds to the Firebase Authentication UID. This approach directly implements the Authorization Independence principle by making the authorization context explicit in the path itself.\n\n**Authorization Independence via Denormalization:**\n\n1.  **`/userProfiles/{userId}`**: The `UserProfile` documents are identified by their `id` which is identical to the `userId` wildcard in the path, directly corresponding to `request.auth.uid`. This means any authorization rule for a `UserProfile` document can simply compare `request.auth.uid` with the `{userId}` wildcard in the request path, eliminating any need for `get()` calls.\n2.  **`/userProfiles/{userId}/devices/{deviceId}`**: Each `Device` document explicitly includes a `userId` field. This `userId` field *must* match the `{userId}` wildcard from its parent path. This critical denormalization allows security rules for `devices` to directly verify `request.auth.uid == userId` (from the path) or `request.auth.uid == resource.data.userId` without performing a `get()` operation on the parent `UserProfile` document. This enables atomic creation and updates for devices, simplifying rules and improving performance.\n3.  **`/userProfiles/{userId}/devices/{deviceId}/captures/{captureId}`**: Similarly, each `Capture` document includes both `userId` and `deviceId` fields. These fields *must* match their respective wildcards in the ancestral path. Security rules for `captures` can therefore directly check `request.auth.uid == userId` (from the path) and `resource.data.userId == userId` without any `get()` calls to the `Device` or `UserProfile` parents. This makes authorization checks on captures atomic and straightforward.\n\n**QAPs (Queries as Permissions) Support:**\n\nThe structural segregation and path-based ownership inherently support QAPs:\n\n1.  **`UserProfile`**: Access to a specific `UserProfile` document is typically granted when `request.auth.uid` matches the `{userId}` document ID. `list` operations are generally restricted to administrative roles or explicitly filtered by `request.auth.uid` on the client side if a user can only view their own profile, ensuring rules are not used as filters.\n2.  **`Device`**: For `list` operations on `devices`, clients will query the subcollection specific to their authenticated `userId` (e.g., `db.collection('userProfiles').doc(request.auth.uid).collection('devices')`). Firestore security rules can then enforce `allow list: if request.auth.uid == userId;`, where `userId` is the path wildcard. This guarantees that any `list` query automatically includes the necessary ownership filter, preventing users from enumerating devices belonging to other users.\n3.  **`Capture`**: Analogous to `Device`s, `list` operations for `captures` will be performed within a user's specific path (e.g., `db.collection('userProfiles').doc(request.auth.uid).collection('devices').doc(deviceId).collection('captures')`). The rules will similarly enforce `allow list: if request.auth.uid == userId;`, ensuring all listed captures belong to the authenticated user. The `userId` and `deviceId` fields within the `Capture` document provide an additional layer for rules to cross-verify path wildcards with document data, enhancing security and rule clarity.\n\nThis design prioritizes simplicity in security rules by embedding ownership and authorization context directly into the data structure, making it highly secure, scalable, and easy to debug."
+  }
+}
