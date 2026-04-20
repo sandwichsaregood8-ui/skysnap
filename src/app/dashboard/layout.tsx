@@ -56,14 +56,6 @@ export default function DashboardLayout({
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild>
                                     <Link href="#">
-                                        <Camera />
-                                        <span>Devices</span>
-                                    </Link>
-                                </SidebarMenuButton>
-                            </SidebarMenuItem>
-                            <SidebarMenuItem>
-                                <SidebarMenuButton asChild>
-                                    <Link href="#">
                                         <Users />
                                         <span>Community</span>
                                     </Link>
