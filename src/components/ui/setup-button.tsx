@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useRouter } from 'next/navigation';
@@ -198,7 +199,7 @@ export function SetupButton() {
       variant="outline"
       className="relative overflow-hidden w-full h-[200px] rounded-[28px] text-lg text-on-surface-variant hover:text-on-surface hover:border-primary/50 transition-all duration-300 flex flex-col items-center justify-center gap-3 border-outline-variant/30 bg-transparent p-0 hover:bg-transparent"
     >
-      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full -z-20" />
+      <canvas ref={canvasRef} className="absolute inset-0 w-full h-full -z-10" />
       <div className="z-10 flex flex-col items-center justify-center gap-3">
         <Plus className="h-10 w-10" />
         <span>Set up or add new device</span>
