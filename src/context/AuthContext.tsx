@@ -12,7 +12,7 @@ import {
   signInWithPopup,
   signOut,
 } from 'firebase/auth';
-import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
+import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
 import { initializeFirebase } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 
@@ -34,49 +34,68 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const { auth, firestore } = initializeFirebase();
   const { toast } = useToast();
 
-  const handleUserInFirestore = async (user: User, details?: { name?: string, isNewUser?: boolean }) => {
+  const handleUserInFirestore = async (user: User, details?: { name?: string }) => {
     const userRef = doc(firestore, `userProfiles/${user.uid}`);
-    const data = {
-      id: user.uid,
-      email: user.email,
-      displayName: details?.name || user.displayName,
-      lastSignedInAt: serverTimestamp(),
-      ...(details?.isNewUser && { createdAt: serverTimestamp() })
-    };
-    await setDoc(userRef, data, { merge: true });
+    const docSnap = await getDoc(userRef);
+
+    if (!docSnap.exists()) {
+      // It's a new user, create the document
+      const data = {
+        id: user.uid,
+        email: user.email,
+        displayName: details?.name || user.displayName,
+        createdAt: serverTimestamp(),
+        lastSignedInAt: serverTimestamp(),
+      };
+      await setDoc(userRef, data);
+    } else {
+      // It's an existing user, just update the sign-in time
+      await setDoc(userRef, { lastSignedInAt: serverTimestamp() }, { merge: true });
+    }
   };
   
   const googleSignIn = async () => {
+    setLoading(true);
     const provider = new GoogleAuthProvider();
     try {
       const result = await signInWithPopup(auth, provider);
-      await handleUserInFirestore(result.user, { isNewUser: true });
+      await handleUserInFirestore(result.user);
       router.push('/dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error("Google Sign-In Error: ", error);
-      toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Please try again." });
+      if (error.code !== 'auth/popup-closed-by-user') {
+          toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Please try again." });
+      }
+    } finally {
+        setLoading(false);
     }
   };
 
   const emailSignUp = async (name: string, email: string, password: string) => {
+    setLoading(true);
     try {
       const result = await createUserWithEmailAndPassword(auth, email, password);
-      await handleUserInFirestore(result.user, { name, isNewUser: true });
+      await handleUserInFirestore(result.user, { name });
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Email Sign-Up Error: ", error);
       toast({ variant: "destructive", title: "Account Creation Failed", description: error.message || "An account with this email may already exist." });
+    } finally {
+        setLoading(false);
     }
   };
   
   const emailSignIn = async (email: string, password: string) => {
+    setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, email, password);
-      // onAuthStateChanged will handle user state, but we push for immediate navigation
+      const result = await signInWithEmailAndPassword(auth, email, password);
+      await handleUserInFirestore(result.user);
       router.push('/dashboard');
     } catch (error: any) {
       console.error("Email Sign-In Error: ", error);
       toast({ variant: "destructive", title: "Sign-in Failed", description: error.message || "Please check your credentials and try again." });
+    } finally {
+        setLoading(false);
     }
   };
 
@@ -86,12 +105,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (firebaseUser) => {
-      setUser(firebaseUser);
+    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+      setUser(currentUser);
       setLoading(false);
     });
     return () => unsubscribe();
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [auth]);
 
   const value = {
