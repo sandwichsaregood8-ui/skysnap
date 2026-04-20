@@ -118,7 +118,7 @@ export default function ConfigureWifiPage() {
                     <div className="pt-4 flex flex-col gap-6 items-center">
                         <button 
                             type="submit"
-                            className="button bg-surface-container-high !text-on-surface"
+                            className="button"
                             disabled={isLoading || !ssid}
                         >
                             {isLoading ? (
