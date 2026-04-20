@@ -250,7 +250,7 @@ export default function GalleryPage() {
                 </div>
             </main>
             {selectedImage && (
-                <div className="fixed inset-0 bg-surface-container-lowest/80 backdrop-blur-lg z-[100] flex items-center justify-center animate-in fade-in-50" onClick={handleCloseModal}>
+                <div className="fixed inset-0 bg-surface-container-lowest/80 backdrop-blur-lg z-[100] flex items-center justify-center animate-in fade-in-0 zoom-in-95" onClick={handleCloseModal}>
                     <div className="relative w-full h-full p-4 md:p-8" onClick={(e) => e.stopPropagation()}>
                         <Image
                             src={selectedImage.imageUrl}
@@ -269,14 +269,14 @@ export default function GalleryPage() {
                         </Button>
                         <div className="absolute bottom-4 right-4 flex flex-col md:flex-row gap-3 z-10">
                             <a href={selectedImage.imageUrl} download={selectedImage.description.replace(/\s+/g, '_') + '.jpg'}>
-                                <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white backdrop-blur-sm w-full">
+                                <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white w-full">
                                     <Download className="mr-2 h-4 w-4" />
                                     Download
                                 </Button>
                             </a>
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>
-                                    <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white backdrop-blur-sm">
+                                    <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white">
                                         <Share2 className="mr-2 h-4 w-4" />
                                         Share
                                     </Button>
@@ -289,7 +289,7 @@ export default function GalleryPage() {
                                     <DropdownMenuItem disabled>Facebook</DropdownMenuItem>
                                 </DropdownMenuContent>
                             </DropdownMenu>
-                             <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white backdrop-blur-sm" onClick={() => alert("To set as wallpaper, please download the image first and set it from your device's settings.")}>
+                             <Button variant="outline" className="bg-black/50 text-white border-white/20 hover:bg-black/70 hover:text-white" onClick={() => alert("To set as wallpaper, please download the image first and set it from your device's settings.")}>
                                 <PictureInPicture className="mr-2 h-4 w-4" />
                                 Set as Wallpaper
                             </Button>
@@ -300,5 +300,3 @@ export default function GalleryPage() {
         </div>
     );
 }
-
-    
