@@ -1,3 +1,22 @@
+  const handleUserInFirestore = async (user: User, details?: { name?: string }) => {
+    const userRef = doc(firestore, `userProfiles/${user.uid}`);
+    const docSnap = await getDoc(userRef);
+
+    if (!docSnap.exists()) {
+      // It's a new user, create the document
+      const data = {
+        id: user.uid,
+        email: user.email,
+        displayName: details?.name || user.displayName,
+        createdAt: serverTimestamp(),
+        lastSignedInAt: serverTimestamp(),
+      };
+      await setDoc(userRef, data);
+    } else {
+      // It's an existing user, just update the sign-in time
+      await setDoc(userRef, { lastSignedInAt: serverTimestamp() }, { merge: true });
+    }
+  };
 {
   "mcpServers": {
     "firebase": {

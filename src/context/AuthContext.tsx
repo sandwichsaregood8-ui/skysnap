@@ -9,7 +9,8 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithPopup,
+  signInWithRedirect,
+  getRedirectResult,
   signOut,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -58,16 +59,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
     try {
-      const result = await signInWithPopup(auth, provider);
-      await handleUserInFirestore(result.user);
-      router.push('/dashboard');
+      await signInWithRedirect(auth, provider);
     } catch (error: any) {
       console.error("Google Sign-In Error: ", error);
-      if (error.code !== 'auth/popup-closed-by-user') {
-          toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Please try again." });
-      }
-    } finally {
-        setLoading(false);
+      toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Please try again." });
+      setLoading(false);
     }
   };
 
@@ -105,6 +101,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
+    getRedirectResult(auth).then(async (result) => {
+      if (result?.user) {
+        await handleUserInFirestore(result.user);
+        router.push('/dashboard');
+      }
+    }).catch((error) => {
+      console.error("Redirect result error:", error);
+    });
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
       setUser(currentUser);
       setLoading(false);
