@@ -136,7 +136,7 @@ export default function ConfigureWifiPage() {
                                 )}
                             </button>
                             <a className={"text-on-surface-variant hover:text-primary font-label text-[10px] tracking-[0.08em] uppercase font-bold transition-colors " + (isLoading ? "pointer-events-none opacity-50" : "")} href="#" onClick={(e) => {e.preventDefault(); if(!isLoading) router.back()}}>
-                                Cancel Setup
+                                Back
                             </a>
                         </div>
                     </form>
