@@ -44,8 +44,7 @@ export function SignInForm() {
             return;
         };
 
-        const handleRedirectResult = async () => {
-            setIsLoading(true);
+        const processRedirectResult = async () => {
             try {
                 const result = await getRedirectResult(auth);
                 if (result) {
@@ -65,9 +64,9 @@ export function SignInForm() {
                     
                     toast({
                         title: isNewUser ? "Account Created!" : "Signed In Successfully!",
-                        description: "Welcome!",
+                        description: `Welcome, ${user.displayName}!`,
                     });
-                    // No router.push, page.tsx will handle the redirect.
+                    // The redirect to /dashboard is handled by page.tsx
                 }
             } catch (error: any) {
                 toast({
@@ -80,7 +79,7 @@ export function SignInForm() {
             }
         };
 
-        handleRedirectResult();
+        processRedirectResult();
     }, [auth, firestore, toast]);
 
     const handleGoogleSignIn = async () => {
@@ -126,10 +125,7 @@ export function SignInForm() {
         } else {
             try {
                 await signInWithEmailAndPassword(auth, email, password);
-                // No router.push, page.tsx will handle the redirect after onAuthStateChanged fires.
-                // We can update the lastSignedInAt timestamp here, but it's better to do it
-                // in a more centralized place if possible, or trigger it via a cloud function.
-                // For simplicity, we can do it here.
+                // On success, onAuthStateChanged will fire and page.tsx will redirect.
                 if (auth.currentUser) {
                     const userRef = doc(firestore, `userProfiles/${auth.currentUser.uid}`);
                     await setDoc(userRef, {
@@ -138,10 +134,16 @@ export function SignInForm() {
                 }
 
             } catch (error: any) {
+                let description = "An unexpected error occurred.";
+                if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+                    description = "Account not found or password incorrect. Please create an account to sign in.";
+                } else {
+                    description = error.message;
+                }
                 toast({
                     variant: "destructive",
                     title: "Login Failed",
-                    description: "Account not found or password incorrect. Please create an account to sign in.",
+                    description: description,
                 });
             } finally {
                 setIsLoading(false);
@@ -266,5 +268,3 @@ export function SignInForm() {
         </div>
     );
 }
-
-    
