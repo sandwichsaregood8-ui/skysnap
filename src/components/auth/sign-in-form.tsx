@@ -15,7 +15,8 @@ import {
     getRedirectResult,
     createUserWithEmailAndPassword,
     signInWithEmailAndPassword,
-    getAdditionalUserInfo
+    getAdditionalUserInfo,
+    sendEmailVerification
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp } from 'firebase/firestore';
 
@@ -36,6 +37,7 @@ export function SignInForm() {
     const [password, setPassword] = useState('');
     const [name, setName] = useState('');
     const [isLoading, setIsLoading] = useState(true); // Start true to check for redirect
+    const [emailVerificationSent, setEmailVerificationSent] = useState(false);
     const { toast } = useToast();
     const auth = useAuth();
     const firestore = useFirestore();
@@ -80,7 +82,7 @@ export function SignInForm() {
                             description: `Welcome back, ${user.displayName}!`,
                         });
                     }
-                    router.push('/dashboard');
+                    // Let the root page handler redirect to dashboard
                 }
             } catch (error: any) {
                 if (error.code !== 'auth/unauthorized-domain') {
@@ -124,11 +126,9 @@ export function SignInForm() {
                     lastSignedInAt: serverTimestamp()
                 });
 
-                toast({
-                    title: "Account Created!",
-                    description: "You have been signed in.",
-                });
-                // No router.push, page.tsx will handle the redirect.
+                await sendEmailVerification(user);
+                setEmailVerificationSent(true);
+
             } catch (error: any) {
                 toast({
                     variant: "destructive",
@@ -141,23 +141,19 @@ export function SignInForm() {
         } else {
             setIsLoading(true);
             try {
-                await signInWithEmailAndPassword(auth, email, password);
+                const userCredential = await signInWithEmailAndPassword(auth, email, password);
                 // On success, the onAuthStateChanged listener in page.tsx will handle the redirect.
                 
                 // Now, attempt to update the user's last sign-in time.
-                // We chain a .catch() to this promise so that if it fails
-                // (e.g., due to security rules), it doesn't trigger the main catch block
-                // and wrongly display a "Login Failed" message.
-                if (auth.currentUser) {
-                    const userRef = doc(firestore, `userProfiles/${auth.currentUser.uid}`);
-                    setDoc(userRef, {
-                        lastSignedInAt: serverTimestamp()
-                    }, { merge: true }).catch(profileError => {
-                        // Log this error to the console for debugging, but don't show the user.
-                        // The user is successfully logged in at this point.
-                        console.error("Silent error: Failed to update last sign-in time.", profileError);
-                    });
-                }
+                const user = userCredential.user;
+                const userRef = doc(firestore, `userProfiles/${user.uid}`);
+                setDoc(userRef, {
+                    lastSignedInAt: serverTimestamp()
+                }, { merge: true }).catch(profileError => {
+                    // Log this error to the console for debugging, but don't show the user.
+                    // The user is successfully logged in at this point.
+                    console.error("Silent error: Failed to update last sign-in time.", profileError);
+                });
             } catch (error: any) {
                 // This catch block now only handles actual authentication failures.
                 let description = "An unexpected error occurred.";
@@ -176,6 +172,33 @@ export function SignInForm() {
             }
         }
     };
+    
+    if (emailVerificationSent) {
+        return (
+            <div className="w-full max-w-sm relative">
+                <div className="glass-card chromatic-border rounded-[2rem] p-10 ambient-glow text-center">
+                    <div className="flex justify-center mb-6">
+                        <div className="w-12 h-12 rounded-xl bg-gradient-to-br from-primary to-primary-container flex items-center justify-center shadow-lg">
+                            <Mail className="text-white" />
+                        </div>
+                    </div>
+                    <h2 className="text-xl font-semibold text-on-surface mb-2">Verify Your Email</h2>
+                    <p className="text-on-surface-variant">
+                        A verification link has been sent to <strong>{email}</strong>. Please check your inbox and click the link to continue.
+                    </p>
+                    <Button 
+                        className="w-full bg-primary-container text-white py-4 h-auto font-semibold tracking-wide hover:bg-primary-container/90 transition-all duration-300 shadow-lg shadow-primary-container/20 mt-8"
+                        onClick={() => {
+                            setEmailVerificationSent(false);
+                            setIsSignUp(false); // Go back to sign-in
+                        }}
+                    >
+                        Back to Sign In
+                    </Button>
+                </div>
+            </div>
+        );
+    }
 
     return (
         <div className="w-full max-w-sm relative">
