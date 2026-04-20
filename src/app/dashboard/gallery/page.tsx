@@ -39,8 +39,8 @@ export default function GalleryPage() {
 
                     float t = u_time * 0.4;
                     
-                    float wave1 = sin(uv.x * 2.0 + t + sin(uv.y * 3.0 + t)) * 0.5 + 0.5;
-                    float wave2 = sin(uv.y * 1.5 - t * 0.7 + cos(uv.x * 2.5 + t * 0.5)) * 0.5 + 0.5;
+                    float wave1 = sin(uv.x * 4.0 + t + sin(uv.y * 6.0 + t)) * 0.5 + 0.5;
+                    float wave2 = sin(uv.y * 3.0 - t * 0.7 + cos(uv.x * 5.0 + t * 0.5)) * 0.5 + 0.5;
                     
                     float mixFactor = (wave1 + wave2) * 0.5;
                     vec3 finalColor = mix(color1, color2, mixFactor);
