@@ -101,20 +101,37 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
-    getRedirectResult(auth).then(async (result) => {
+  let redirectHandled = false;
+
+  const handleRedirect = async () => {
+    try {
+      const result = await getRedirectResult(auth);
       if (result?.user) {
+        redirectHandled = true;
         await handleUserInFirestore(result.user);
         router.push('/dashboard');
       }
-    }).catch((error) => {
-      console.error("Redirect result error:", error);
-    });
+    } catch (error) {
+      console.error('Redirect result error:', error);
+    }
+  };
+
+  handleRedirect().then(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
+      if (!redirectHandled) {
+        setUser(currentUser);
+        setLoading(false);
+        if (currentUser) {
+          router.push('/dashboard');
+        }
+      } else {
+        setUser(currentUser);
+        setLoading(false);
+      }
     });
     return () => unsubscribe();
-  }, [auth]);
+  });
+}, [auth]);
 
   const value = {
     user,
