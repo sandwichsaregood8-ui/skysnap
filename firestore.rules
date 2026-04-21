@@ -1,32 +1,34 @@
 /**
- * Core Philosophy: This ruleset enforces a strict user-ownership security model.
- * All user-generated data is stored within a top-level `/users/{userId}` collection,
- * making authorization checks simple, fast, and scalable. Access is restricted
- * to the authenticated user who owns the data tree.
+ * This ruleset enforces a strict user-ownership security model for the SkySnap application.
+ * All user-generated data, such as devices, settings, and image captures, is
+ * stored within a hierarchical structure under that user's unique ID.
  *
- * Data Structure: The data is organized hierarchically. A root `/users`
- * collection holds individual user profile documents. Each user document
- * can contain subcollections for `devices`, and each device can further
- * contain subcollections for `deviceSettings` and `captures`.
+ * Core Philosophy:
+ * Access to any document is granted only to the authenticated user who owns that
+ * data tree. This is primarily achieved by comparing the requester's authentication
+ * UID (`request.auth.uid`) with the `{userId}` wildcard in the document path.
+ *
+ * Data Structure:
+ * The Firestore database is organized hierarchically, starting with the `users`
+ * collection. All other data is nested within a specific user's document:
+ *   - /users/{userId} - (UserProfile)
+ *   - /users/{userId}/devices/{deviceId} - (Device)
+ *   - /users/{userId}/devices/{deviceId}/settings/config - (DeviceSetting)
+ *   - /users/{userId}/devices/{deviceId}/captures/{captureId} - (Capture)
  *
  * Key Security Decisions:
- * - User Isolation: All data is nested under `/users/{userId}`, and rules
- *   primarily check if `request.auth.uid == userId`. This path-based security
- *   completely isolates one user's data from another.
- * - No Public Listing: It is not possible to list all users in the system.
- * - Secure by Default: Any path not explicitly matched is denied access. There
- *   are no public collections.
- *
- * Denormalization for Authorization: To ensure performant and simple rules,
- * ownership information is denormalized. For example, a `Device` document
- * under `/users/{userId}/devices/{deviceId}` contains a `userId` field. This
- * reinforces the ownership link and ensures relational integrity without
- * needing costly `get()` calls to parent documents.
- *
- * Structural Segregation: Each collection has a uniform security posture (all
- * documents are owned by the user in the path). This avoids complex conditional
- * logic within a single collection and makes list operations (`queries`)
- * inherently secure.
+ * - Strict Ownership: A user can only read or write data located under their
+ *   own `/users/{userId}` path. There is no concept of shared or public data.
+ * - No User Listing: It is not possible for any user, authenticated or not,
+ *   to list all documents in the top-level `users` collection.
+ * - Authorization Independence: To ensure rules are fast and simple, critical
+ *   ownership information (like `userId` and `deviceId`) is denormalized
+ *   (copied) onto child documents. This avoids slow and costly `get()` calls
+ *   in security rules, ensuring that authorization can be determined from the
+ *   document's path and its own data.
+ * - Singleton Configuration: Device settings are stored as a singleton document
+ *   named 'config' within a 'settings' subcollection to enforce a 1:1 relationship
+ *   between a device and its configuration.
  */
 rules_version = '2';
 service cloud.firestore {
@@ -37,146 +39,144 @@ service cloud.firestore {
     // ----------------------------------------------------------------------
 
     /**
-     * Checks if the user is authenticated.
+     * Checks if a user is authenticated.
      */
     function isSignedIn() {
       return request.auth != null;
     }
 
     /**
-     * Checks if the authenticated user's UID matches the provided userId.
-     * This is the cornerstone of the user-ownership model.
+     * Checks if the currently authenticated user's UID matches the provided userId.
+     * This is the primary function for enforcing data ownership.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * A robust check for update/delete operations, ensuring the user is the
-     * owner AND the document already exists.
+     * Checks for ownership on an existing document. Used for update and delete
+     * operations to prevent acting on non-existent data.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
     /**
-     * Validates required relational fields on UserProfile creation.
+     * On create, validates that the new UserProfile document's 'id' field
+     * matches the authenticated user's UID.
      */
-    function hasValidUserProfileDataOnCreate(userId) {
-      return request.resource.data.id == userId;
+    function isCreatingOwnProfile(userId) {
+      return isOwner(userId) && request.resource.data.id == userId;
     }
 
     /**
-     * Enforces immutability of the user ID on UserProfile update.
+     * On update, ensures the 'id' field of a UserProfile is immutable.
      */
-    function hasValidUserProfileDataOnUpdate() {
+    function isUpdatingOwnProfile() {
       return request.resource.data.id == resource.data.id;
     }
-
+    
     /**
-     * Validates required relational fields on Device creation.
+     * On create, validates that a new sub-document contains a 'userId' field
+     * that matches the user from the path.
      */
-    function hasValidDeviceDataOnCreate(userId) {
+    function isCreatingChildDoc(userId) {
       return request.resource.data.userId == userId;
     }
-
+    
     /**
-     * Enforces immutability of the owner ID on Device update.
+     * On update, ensures the 'userId' field of a sub-document is immutable.
      */
-    function hasValidDeviceDataOnUpdate() {
-      return request.resource.data.userId == resource.data.id;
+    function isUpdatingChildDoc() {
+      return request.resource.data.userId == resource.data.userId;
     }
-
+    
     /**
-     * Validates required relational fields on DeviceSettings creation.
+     * On create, validates that a new Capture or Setting contains a 'deviceId'
+     * field that matches the device from the path.
      */
-    function hasValidDeviceSettingsDataOnCreate(deviceId) {
+    function isCreatingGrandchildDoc(deviceId) {
       return request.resource.data.deviceId == deviceId;
     }
-
+    
     /**
-     * Enforces immutability of the device ID on DeviceSettings update.
+     * On update, ensures the 'deviceId' field of a Capture or Setting is immutable.
      */
-    function hasValidDeviceSettingsDataOnUpdate() {
+    function isUpdatingGrandchildDoc() {
       return request.resource.data.deviceId == resource.data.deviceId;
     }
 
     /**
-     * Validates required relational fields on Capture creation.
+     * Validates that the settings document being accessed is the singleton 'config'.
      */
-    function hasValidCaptureDataOnCreate(userId, deviceId) {
-      return request.resource.data.userId == userId && request.resource.data.deviceId == deviceId;
+    function isConfigDocument(settingId) {
+      return settingId == 'config';
     }
 
-    /**
-     * Enforces immutability of owner and device IDs on Capture update.
-     */
-    function hasValidCaptureDataOnUpdate() {
-      return request.resource.data.userId == resource.data.id && request.resource.data.deviceId == resource.data.deviceId;
-    }
 
     // ----------------------------------------------------------------------
     // Collection Rules
     // ----------------------------------------------------------------------
 
     /**
-     * @description Secures a user's own profile document.
+     * @description Controls access to a user's own profile document.
      * @path /users/{userId}
-     * @allow (create) An authenticated user creates their own profile document, where the document ID matches their auth UID.
-     * @deny (get) An authenticated user attempts to read another user's profile document.
-     * @principle Restricts access to a user's own root document and validates self-referential ID on create.
+     * @allow (create) An authenticated user can create their own profile document.
+     * @deny (get) An authenticated user ('user-abc') cannot read the profile of another user ('user-xyz').
+     * @principle Restricts access to a user's own data tree and enforces self-creation.
      */
     match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidUserProfileDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && hasValidUserProfileDataOnUpdate();
+      allow list: if false;
+      allow create: if isCreatingOwnProfile(userId);
+      allow update: if isExistingOwner(userId) && isUpdatingOwnProfile();
       allow delete: if isExistingOwner(userId);
-    }
 
-    /**
-     * @description Secures the devices owned by a user.
-     * @path /users/{userId}/devices/{deviceId}
-     * @allow (create) The user with auth UID `{userId}` creates a new device document for themselves.
-     * @deny (update) A different user attempts to modify a device document they do not own.
-     * @principle Enforces strict ownership for all operations on a user's private subcollection.
-     */
-    match /users/{userId}/devices/{deviceId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidDeviceDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && hasValidDeviceDataOnUpdate();
-      allow delete: if isExistingOwner(userId);
-    }
+      /**
+       * @description Manages access to the devices owned by a user.
+       * @path /users/{userId}/devices/{deviceId}
+       * @allow (list) An authenticated user ('user-abc') can list all devices under their own path.
+       * @deny (create) An authenticated user ('user-abc') cannot create a device under another user's path ('user-xyz').
+       * @principle Enforces document ownership for all operations and validates relational integrity on create/update.
+       */
+      match /devices/{deviceId} {
+        allow get: if isOwner(userId);
+        allow list: if isOwner(userId);
+        allow create: if isOwner(userId) && isCreatingChildDoc(userId);
+        allow update: if isExistingOwner(userId) && isUpdatingChildDoc();
+        allow delete: if isExistingOwner(userId);
 
-    /**
-     * @description Secures settings specific to a user's device.
-     * @path /users/{userId}/devices/{deviceId}/deviceSettings/{settingsId}
-     * @allow (get) The user with auth UID `{userId}` reads the settings for one of their devices.
-     * @deny (create) An unauthenticated user attempts to create a settings document.
-     * @principle Restricts access to deeply nested data based on the top-level user ID in the path.
-     */
-    match /users/{userId}/devices/{deviceId}/deviceSettings/{settingsId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidDeviceSettingsDataOnCreate(deviceId);
-      allow update: if isExistingOwner(userId) && hasValidDeviceSettingsDataOnUpdate();
-      allow delete: if isExistingOwner(userId);
-    }
+        /**
+         * @description Secures the singleton configuration document for a specific device.
+         * @path /users/{userId}/devices/{deviceId}/settings/{settingId}
+         * @allow (get) An authenticated user ('user-abc') can get the 'config' document for their own device.
+         * @deny (create) A user cannot create a settings document with an ID other than 'config'.
+         * @deny (list) Listing the 'settings' collection is disallowed as it only contains one document.
+         * @principle Enforces a 1:1 relationship via a singleton document pattern and maintains ownership from the parent.
+         */
+        match /settings/{settingId} {
+          allow get: if isOwner(userId) && isConfigDocument(settingId);
+          allow list: if false;
+          allow create: if isOwner(userId) && isConfigDocument(settingId) && isCreatingChildDoc(userId) && isCreatingGrandchildDoc(deviceId);
+          allow update: if isExistingOwner(userId) && isConfigDocument(settingId) && isUpdatingChildDoc() && isUpdatingGrandchildDoc();
+          allow delete: if isExistingOwner(userId) && isConfigDocument(settingId);
+        }
 
-    /**
-     * @description Secures image capture records for a specific device owned by a user.
-     * @path /users/{userId}/devices/{deviceId}/captures/{captureId}
-     * @allow (delete) The user with auth UID `{userId}` deletes a capture record from one of their devices.
-     * @deny (list) A different user attempts to list captures for a device they do not own.
-     * @principle Validates relational integrity to both the user and device on creation, ensuring data consistency.
-     */
-    match /users/{userId}/devices/{deviceId}/captures/{captureId} {
-      allow get: if isOwner(userId);
-      allow list: if isOwner(userId);
-      allow create: if isOwner(userId) && hasValidCaptureDataOnCreate(userId, deviceId);
-      allow update: if isExistingOwner(userId) && hasValidCaptureDataOnUpdate();
-      allow delete: if isExistingOwner(userId);
+        /**
+         * @description Controls access to image capture metadata for a specific device.
+         * @path /users/{userId}/devices/{deviceId}/captures/{captureId}
+         * @allow (create) An authenticated user can create a new capture record for one of their devices.
+         * @deny (update) A user cannot change the `userId` or `deviceId` fields on an existing capture.
+         * @principle Enforces strict ownership and ensures relational fields (`userId`, `deviceId`) are immutable.
+         */
+        match /captures/{captureId} {
+          allow get: if isOwner(userId);
+          allow list: if isOwner(userId);
+          allow create: if isOwner(userId) && isCreatingChildDoc(userId) && isCreatingGrandchildDoc(deviceId);
+          allow update: if isExistingOwner(userId) && isUpdatingChildDoc() && isUpdatingGrandchildDoc();
+          allow delete: if isExistingOwner(userId);
+        }
+      }
     }
   }
 }
