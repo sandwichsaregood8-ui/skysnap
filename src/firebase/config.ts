@@ -1,9 +1,8 @@
 export const firebaseConfig = {
-  apiKey: "AIzaSyD-a_xP5t_yZ_x_w8I_z_x_yZ_w8I_z",
-  authDomain: "skysnap-auth-v2-1a2b3.firebaseapp.com",
-  projectId: "skysnap-auth-v2-1a2b3",
-  storageBucket: "skysnap-auth-v2-1a2b3.appspot.com",
-  messagingSenderId: "123456789012",
-  appId: "1:123456789012:web:1234567890abcdef",
-  measurementId: "G-ABCDEFGHIJ"
+  "projectId": "studio-9800012816-46bdf",
+  "appId": "1:1044980903448:web:eefb90382bc6390026dd6d",
+  "apiKey": "AIzaSyDe_q2mFFSj7PUna_aO3kX1ggd37JM0XV0",
+  "authDomain": "studio-9800012816-46bdf.firebaseapp.com",
+  "measurementId": "",
+  "messagingSenderId": "1044980903448"
 };

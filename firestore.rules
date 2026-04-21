@@ -1,46 +1,42 @@
 /**
- * Core Philosophy: This ruleset enforces a strict, hierarchical user-ownership
- * model. All user-generated data, such as devices and image captures, is
- * securely nested within that user's own document tree. Access is granted
- * based on the authenticated user's ID matching the path of the requested
- * document, ensuring users can only ever access their own information.
+ * Core Philosophy: This ruleset enforces a strict user-ownership security model.
+ * All user-generated data is stored within a top-level `/users/{userId}` collection,
+ * making authorization checks simple, fast, and scalable. Access is restricted
+ * to the authenticated user who owns the data tree.
  *
- * Data Structure: All data is stored under the `/userProfiles/{userId}`
- * path, where `{userId}` corresponds to the Firebase Authentication UID.
- * This creates a clear and isolated data silo for each user. The hierarchy
- * is: /userProfiles/{userId}/devices/{deviceId}/captures/{captureId}.
+ * Data Structure: The data is organized hierarchically. A root `/users`
+ * collection holds individual user profile documents. Each user document
+ * can contain subcollections for `devices`, and each device can further
+ * contain subcollections for `deviceSettings` and `captures`.
  *
  * Key Security Decisions:
- * - User Isolation: A user can only read or write data within their own
- *   `/userProfiles/{userId}` path. Cross-user access is denied by default.
- * - No User Enumeration: The top-level `/userProfiles` collection cannot be
- *   listed by any client. This prevents malicious actors from scraping a list
- *   of all users in the application.
- * - Self-Creation of Profiles: A newly authenticated user is permitted to
- *   create their own profile document, but cannot create one for anyone else.
+ * - User Isolation: All data is nested under `/users/{userId}`, and rules
+ *   primarily check if `request.auth.uid == userId`. This path-based security
+ *   completely isolates one user's data from another.
+ * - No Public Listing: It is not possible to list all users in the system.
+ * - Secure by Default: Any path not explicitly matched is denied access. There
+ *   are no public collections.
  *
- * Denormalization for Authorization: To ensure fast and secure authorization,
- * ownership information is denormalized. Each `Device` document contains a
- * `userId` field, and each `Capture` document contains both a `userId` and
- * `deviceId`. The rules strictly enforce that these fields match the
- * corresponding IDs in the document's path on creation and that they are
- * immutable on update. This avoids slow and costly `get()` calls to parent
- * documents for authorization checks.
+ * Denormalization for Authorization: To ensure performant and simple rules,
+ * ownership information is denormalized. For example, a `Device` document
+ * under `/users/{userId}/devices/{deviceId}` contains a `userId` field. This
+ * reinforces the ownership link and ensures relational integrity without
+ * needing costly `get()` calls to parent documents.
  *
- * Structural Segregation: The entire data model is segregated by user at the
- * root, which is the most secure and performant pattern for this application's
- * private data model.
+ * Structural Segregation: Each collection has a uniform security posture (all
+ * documents are owned by the user in the path). This avoids complex conditional
+ * logic within a single collection and makes list operations (`queries`)
+ * inherently secure.
  */
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
 
-    //-------------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // Helper Functions
-    //-------------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
     /**
-     * isSignedIn
      * Checks if the user is authenticated.
      */
     function isSignedIn() {
@@ -48,139 +44,138 @@ service cloud.firestore {
     }
 
     /**
-     * isOwner
-     * Validates that the requesting user's UID matches the provided userId.
-     * This is the foundation of the user-ownership security model.
-     * @param userId The user ID to check against the request's auth UID.
+     * Checks if the authenticated user's UID matches the provided userId.
+     * This is the cornerstone of the user-ownership model.
      */
     function isOwner(userId) {
       return isSignedIn() && request.auth.uid == userId;
     }
 
     /**
-     * isExistingOwner
-     * Confirms that a document already exists and that the requester is its owner.
-     * Essential for secure update and delete operations.
-     * @param userId The user ID to check against the request's auth UID.
+     * A robust check for update/delete operations, ensuring the user is the
+     * owner AND the document already exists.
      */
     function isExistingOwner(userId) {
       return isOwner(userId) && resource != null;
     }
 
     /**
-     * hasValidUserProfileDataOnCreate
-     * Ensures the new UserProfile document's internal `id` matches its path `{userId}`.
-     * This is a critical relational integrity check for new user profiles.
-     * @param userId The wildcard userId from the path.
+     * Validates required relational fields on UserProfile creation.
      */
     function hasValidUserProfileDataOnCreate(userId) {
       return request.resource.data.id == userId;
     }
 
     /**
-     * areUserProfileImmutableFieldsUnchanged
-     * Ensures that core, immutable fields of a UserProfile are not modified on update.
-     * This rule allows partial updates (like changing `displayName` or `lastSignedInAt`)
-     * by checking if an immutable field is either not present in the update data,
-     * or if it is present but its value has not changed.
-     * - 'id': The primary identifier, must never change.
-     * - 'createdAt': The creation timestamp, must never change.
+     * Enforces immutability of the user ID on UserProfile update.
      */
-    function areUserProfileImmutableFieldsUnchanged() {
-      let isIdUnchanged = !('id' in request.resource.data) || request.resource.data.id == resource.data.id;
-      let isCreatedAtUnchanged = !('createdAt' in request.resource.data) || request.resource.data.createdAt == resource.data.createdAt;
-      return isIdUnchanged && isCreatedAtUnchanged;
+    function hasValidUserProfileDataOnUpdate() {
+      return request.resource.data.id == resource.data.id;
     }
 
     /**
-     * hasValidDeviceDataOnCreate
-     * Validates relational integrity for a new Device.
-     * Ensures the document's internal `userId` matches its parent path `{userId}`.
-     * @param userId The wildcard userId from the path.
+     * Validates required relational fields on Device creation.
      */
     function hasValidDeviceDataOnCreate(userId) {
       return request.resource.data.userId == userId;
     }
 
     /**
-     * isDeviceOwnerFieldImmutable
-     * Ensures the Device's `userId` field cannot be changed after creation.
-     * Allows updates that don't include the 'userId' field.
+     * Enforces immutability of the owner ID on Device update.
      */
-    function isDeviceOwnerFieldImmutable() {
-      return !('userId' in request.resource.data) || request.resource.data.userId == resource.data.userId;
+    function hasValidDeviceDataOnUpdate() {
+      return request.resource.data.userId == resource.data.id;
     }
 
     /**
-     * hasValidCaptureDataOnCreate
-     * Validates relational integrity for a new Capture.
-     * Ensures internal `userId` and `deviceId` match the document's path.
-     * @param userId The wildcard userId from the path.
-     * @param deviceId The wildcard deviceId from the path.
+     * Validates required relational fields on DeviceSettings creation.
+     */
+    function hasValidDeviceSettingsDataOnCreate(deviceId) {
+      return request.resource.data.deviceId == deviceId;
+    }
+
+    /**
+     * Enforces immutability of the device ID on DeviceSettings update.
+     */
+    function hasValidDeviceSettingsDataOnUpdate() {
+      return request.resource.data.deviceId == resource.data.deviceId;
+    }
+
+    /**
+     * Validates required relational fields on Capture creation.
      */
     function hasValidCaptureDataOnCreate(userId, deviceId) {
-      let data = request.resource.data;
-      return data.userId == userId && data.deviceId == deviceId;
+      return request.resource.data.userId == userId && request.resource.data.deviceId == deviceId;
     }
 
     /**
-     * areCaptureOwnerFieldsImmutable
-     * Ensures the Capture's `userId` and `deviceId` fields cannot be changed.
-     * Allows updates that don't include these fields.
+     * Enforces immutability of owner and device IDs on Capture update.
      */
-    function areCaptureOwnerFieldsImmutable() {
-      let incoming = request.resource.data;
-      let existing = resource.data;
-      return (!('userId' in incoming) || incoming.userId == existing.userId)
-          && (!('deviceId' in incoming) || incoming.deviceId == existing.deviceId);
+    function hasValidCaptureDataOnUpdate() {
+      return request.resource.data.userId == resource.data.id && request.resource.data.deviceId == resource.data.deviceId;
     }
 
-    //-------------------------------------------------------------------------
+    // ----------------------------------------------------------------------
     // Collection Rules
-    //-------------------------------------------------------------------------
+    // ----------------------------------------------------------------------
 
     /**
-     * @description Controls access to user profile documents.
-     * @path /userProfiles/{userId}
-     * @allow (create) An authenticated user creating their own profile.
-     * @deny  (list) Any user attempting to list all user profiles.
-     * @principle Restricts access to a user's own data tree and prevents user enumeration.
+     * @description Secures a user's own profile document.
+     * @path /users/{userId}
+     * @allow (create) An authenticated user creates their own profile document, where the document ID matches their auth UID.
+     * @deny (get) An authenticated user attempts to read another user's profile document.
+     * @principle Restricts access to a user's own root document and validates self-referential ID on create.
      */
-    match /userProfiles/{userId} {
+    match /users/{userId} {
       allow get: if isOwner(userId);
-      allow list: if false; // CRITICAL: Prevents listing all users
+      allow list: if isOwner(userId);
       allow create: if isOwner(userId) && hasValidUserProfileDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && areUserProfileImmutableFieldsUnchanged();
+      allow update: if isExistingOwner(userId) && hasValidUserProfileDataOnUpdate();
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to a user's registered device documents.
-     * @path /userProfiles/{userId}/devices/{deviceId}
-     * @allow (create) An authenticated user adding a new device to their own profile.
-     * @deny  (get) User 'A' trying to read a device belonging to User 'B'.
-     * @principle Enforces document ownership for all operations within a user's subcollection.
+     * @description Secures the devices owned by a user.
+     * @path /users/{userId}/devices/{deviceId}
+     * @allow (create) The user with auth UID `{userId}` creates a new device document for themselves.
+     * @deny (update) A different user attempts to modify a device document they do not own.
+     * @principle Enforces strict ownership for all operations on a user's private subcollection.
      */
-    match /userProfiles/{userId}/devices/{deviceId} {
+    match /users/{userId}/devices/{deviceId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isOwner(userId) && hasValidDeviceDataOnCreate(userId);
-      allow update: if isExistingOwner(userId) && isDeviceOwnerFieldImmutable();
+      allow update: if isExistingOwner(userId) && hasValidDeviceDataOnUpdate();
       allow delete: if isExistingOwner(userId);
     }
 
     /**
-     * @description Controls access to image capture data, which belongs to a specific device owned by a user.
-     * @path /userProfiles/{userId}/devices/{deviceId}/captures/{captureId}
-     * @allow (list) An authenticated user listing captures from one of their own devices.
-     * @deny  (create) A user trying to create a capture record under another user's device path.
-     * @principle Validates relational integrity by ensuring capture data correctly references its parent user and device.
+     * @description Secures settings specific to a user's device.
+     * @path /users/{userId}/devices/{deviceId}/deviceSettings/{settingsId}
+     * @allow (get) The user with auth UID `{userId}` reads the settings for one of their devices.
+     * @deny (create) An unauthenticated user attempts to create a settings document.
+     * @principle Restricts access to deeply nested data based on the top-level user ID in the path.
      */
-    match /userProfiles/{userId}/devices/{deviceId}/captures/{captureId} {
+    match /users/{userId}/devices/{deviceId}/deviceSettings/{settingsId} {
+      allow get: if isOwner(userId);
+      allow list: if isOwner(userId);
+      allow create: if isOwner(userId) && hasValidDeviceSettingsDataOnCreate(deviceId);
+      allow update: if isExistingOwner(userId) && hasValidDeviceSettingsDataOnUpdate();
+      allow delete: if isExistingOwner(userId);
+    }
+
+    /**
+     * @description Secures image capture records for a specific device owned by a user.
+     * @path /users/{userId}/devices/{deviceId}/captures/{captureId}
+     * @allow (delete) The user with auth UID `{userId}` deletes a capture record from one of their devices.
+     * @deny (list) A different user attempts to list captures for a device they do not own.
+     * @principle Validates relational integrity to both the user and device on creation, ensuring data consistency.
+     */
+    match /users/{userId}/devices/{deviceId}/captures/{captureId} {
       allow get: if isOwner(userId);
       allow list: if isOwner(userId);
       allow create: if isOwner(userId) && hasValidCaptureDataOnCreate(userId, deviceId);
-      allow update: if isExistingOwner(userId) && areCaptureOwnerFieldsImmutable();
+      allow update: if isExistingOwner(userId) && hasValidCaptureDataOnUpdate();
       allow delete: if isExistingOwner(userId);
     }
   }
