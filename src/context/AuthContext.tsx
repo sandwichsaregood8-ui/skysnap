@@ -9,8 +9,7 @@ import {
   createUserWithEmailAndPassword,
   onAuthStateChanged,
   signInWithEmailAndPassword,
-  signInWithRedirect,
-  getRedirectResult,
+  signInWithPopup,
   signOut,
 } from 'firebase/auth';
 import { doc, setDoc, serverTimestamp, getDoc } from 'firebase/firestore';
@@ -58,11 +57,16 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const googleSignIn = async () => {
     setLoading(true);
     const provider = new GoogleAuthProvider();
+    provider.setCustomParameters({ prompt: 'select_account' });
     try {
-      await signInWithRedirect(auth, provider);
+      const result = await signInWithPopup(auth, provider);
+      await handleUserInFirestore(result.user);
+      router.push('/dashboard');
     } catch (error: any) {
-      console.error("Google Sign-In Error: ", error);
-      toast({ variant: "destructive", title: "Google Sign-In Failed", description: "Please try again." });
+      console.error('Google Sign-In Error:', error);
+      if (error.code !== 'auth/popup-closed-by-user') {
+        toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: 'Please try again.' });
+      }
       setLoading(false);
     }
   };
@@ -101,37 +105,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
   
   useEffect(() => {
-  let redirectHandled = false;
-
-  const handleRedirect = async () => {
-    try {
-      const result = await getRedirectResult(auth);
-      if (result?.user) {
-        redirectHandled = true;
-        await handleUserInFirestore(result.user);
-        router.push('/dashboard');
-      }
-    } catch (error) {
-      console.error('Redirect result error:', error);
-    }
-  };
-
-  handleRedirect().then(() => {
     const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      if (!redirectHandled) {
-        setUser(currentUser);
-        setLoading(false);
-        if (currentUser) {
-          router.push('/dashboard');
-        }
-      } else {
-        setUser(currentUser);
-        setLoading(false);
-      }
+      setUser(currentUser);
+      setLoading(false);
     });
     return () => unsubscribe();
-  });
-}, [auth]);
+  }, [auth]);
 
   const value = {
     user,
