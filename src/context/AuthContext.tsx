@@ -2,68 +2,84 @@
 
 import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { initializeApp, getApps, type FirebaseApp } from 'firebase/app';
+import {
+  getAuth,
+  onAuthStateChanged,
+  GoogleAuthProvider,
+  signInWithPopup,
+  signOut,
+  type User,
+} from 'firebase/auth';
 
-// Mock User type, so we don't have to import from firebase
-type User = {
-  displayName: string | null;
-  email: string | null;
-  photoURL: string | null;
-  uid: string;
+// IMPORTANT: Replace these with your actual Firebase project configuration
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_AUTH_DOMAIN",
+  projectId: "YOUR_PROJECT_ID",
+  storageBucket: "YOUR_STORAGE_BUCKET",
+  messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+  appId: "YOUR_APP_ID"
 };
+
+// Initialize Firebase
+let app: FirebaseApp;
+if (!getApps().length) {
+  app = initializeApp(firebaseConfig);
+} else {
+  app = getApps()[0];
+}
+
+const auth = getAuth(app);
 
 interface AuthContextType {
   user: User | null;
   loading: boolean;
   googleSignIn: () => Promise<void>;
-  emailSignUp: (name: string, email: string, password: string) => Promise<void>;
-  emailSignIn: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Start with no user to allow visiting login page first.
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const router = useRouter();
 
-  const handleLogin = () => {
-     setUser({
-        uid: 'mock-user',
-        displayName: 'Test User',
-        email: 'test@example.com',
-        photoURL: null
+  useEffect(() => {
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setUser(user);
+      setLoading(false);
     });
-    router.push('/dashboard');
-  }
+
+    return () => unsubscribe();
+  }, []);
+
 
   const googleSignIn = async () => {
-    console.log("Google Sign In clicked");
-    handleLogin();
-  };
-
-  const emailSignUp = async (name: string, email: string, password: string) => {
-    console.log("Email Sign up clicked");
-    handleLogin();
-  };
-  
-  const emailSignIn = async (email: string, password: string) => {
-    console.log("Email Sign in clicked");
-    handleLogin();
+    setLoading(true);
+    const provider = new GoogleAuthProvider();
+    try {
+      await signInWithPopup(auth, provider);
+      router.push('/dashboard');
+    } catch (error) {
+      console.error("Google Sign-In Error:", error);
+      setLoading(false);
+    }
   };
 
   const logout = async () => {
+    setLoading(true);
+    await signOut(auth);
     setUser(null);
     router.push('/login');
+    setLoading(false);
   };
   
   const value = {
     user,
     loading,
     googleSignIn,
-    emailSignUp,
-    emailSignIn,
     logout,
   };
 
