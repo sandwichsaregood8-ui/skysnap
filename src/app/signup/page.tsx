@@ -1,4 +1,3 @@
-// SIGNIN FILE
 'use client';
 
 import { useState, useEffect } from 'react';
@@ -10,20 +9,35 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Camera } from 'lucide-react';
 
+// This is the sign-up page. Since we use passwordless authentication (Google and Magic Link),
+// this page is very similar to the login page. It provides the same two methods for
+// creating an account or signing in.
 export default function SignUpPage() {
-  const [name, setName] = useState('');
   const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const { emailSignUp, googleSignIn, user, loading } = useAuth();
+  const { googleSignIn, sendMagicLink, user, loading } = useAuth();
   const router = useRouter();
 
+  // Effect to redirect if the user is already authenticated
   useEffect(() => {
     if (!loading && user) {
       router.push('/dashboard');
     }
   }, [user, loading, router]);
 
-  if (loading) {
+  // Handler for Magic Link form submission
+  const handleMagicLinkSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email) return;
+    await sendMagicLink(email);
+  };
+
+  // Handler for Google Sign-In button
+  const handleGoogleSignIn = async () => {
+    await googleSignIn();
+  };
+
+  // While loading, show a simple loading indicator
+  if (loading && !user) {
     return (
         <div className="flex items-center justify-center h-screen bg-background">
             <div className="flex flex-col items-center gap-4">
@@ -35,43 +49,19 @@ export default function SignUpPage() {
         </div>
     );
   }
-
-  if (user) {
-    return null; // Prevent rendering the form while redirecting
-  }
-
-
-  const handleSignUp = async (e: React.FormEvent) => {
-    e.preventDefault();
-    await emailSignUp(name, email, password);
-  };
-
-  const handleGoogleSignIn = async () => {
-    await googleSignIn();
-  };
-
+  
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4">
       <div className="w-full max-w-sm space-y-8 rounded-lg bg-card p-8 shadow-lg">
         <div>
           <h2 className="text-center text-3xl font-extrabold text-foreground">
-            Create a new account
+            Create an account
           </h2>
+          <p className="mt-2 text-center text-sm text-muted-foreground">
+            Enter your email to receive a magic link, or use Google.
+          </p>
         </div>
-        <form className="space-y-6" onSubmit={handleSignUp}>
-          <div className="space-y-2">
-            <Label htmlFor="name">Full name</Label>
-            <Input
-              id="name"
-              name="name"
-              type="text"
-              autoComplete="name"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Jane Doe"
-            />
-          </div>
+        <form className="space-y-6" onSubmit={handleMagicLinkSubmit}>
           <div className="space-y-2">
             <Label htmlFor="email">Email address</Label>
             <Input
@@ -83,24 +73,12 @@ export default function SignUpPage() {
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="email@example.com"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="password">Password</Label>
-            <Input
-              id="password"
-              name="password"
-              type="password"
-              autoComplete="new-password"
-              required
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              placeholder="••••••••"
+              disabled={loading}
             />
           </div>
           <div>
-            <Button type="submit" className="w-full">
-              Create Account
+            <Button type="submit" className="w-full" disabled={loading}>
+              {loading ? 'Sending...' : 'Send Magic Link'}
             </Button>
           </div>
         </form>
@@ -115,8 +93,8 @@ export default function SignUpPage() {
           </div>
         </div>
         <div>
-          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn}>
-            Sign up with Google
+          <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
+            {loading ? 'Redirecting...' : 'Sign up with Google'}
           </Button>
         </div>
         <div className="text-center text-sm">
