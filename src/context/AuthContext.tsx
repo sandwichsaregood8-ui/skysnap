@@ -37,7 +37,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   const emailSignUp = async (name: string, email: string, password: string) => {
-    // This is a placeholder and will not write to Firestore as requested.
     await createUserWithEmailAndPassword(auth, email, password);
     router.push('/dashboard');
   };
