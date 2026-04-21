@@ -1,17 +1,15 @@
 'use client';
 
-import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import {
-  User,
-  GoogleAuthProvider,
-  onAuthStateChanged,
-  signInWithPopup,
-  signOut,
-  createUserWithEmailAndPassword,
-  signInWithEmailAndPassword,
-} from 'firebase/auth';
-import { initializeFirebase } from '@/firebase';
+
+// Mock User type, so we don't have to import from firebase
+type User = {
+  displayName: string | null;
+  email: string | null;
+  photoURL: string | null;
+  uid: string;
+};
 
 interface AuthContextType {
   user: User | null;
@@ -25,40 +23,41 @@ interface AuthContextType {
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
+  // Start with no user to allow visiting login page first.
   const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
-  const { auth } = initializeFirebase();
+
+  const handleLogin = () => {
+     setUser({
+        uid: 'mock-user',
+        displayName: 'Test User',
+        email: 'test@example.com',
+        photoURL: null
+    });
+    router.push('/dashboard');
+  }
 
   const googleSignIn = async () => {
-    const provider = new GoogleAuthProvider();
-    const result = await signInWithPopup(auth, provider);
-    router.push('/dashboard');
+    console.log("Google Sign In clicked");
+    handleLogin();
   };
 
   const emailSignUp = async (name: string, email: string, password: string) => {
-    await createUserWithEmailAndPassword(auth, email, password);
-    router.push('/dashboard');
+    console.log("Email Sign up clicked");
+    handleLogin();
   };
   
   const emailSignIn = async (email: string, password: string) => {
-    await signInWithEmailAndPassword(auth, email, password);
-    router.push('/dashboard');
+    console.log("Email Sign in clicked");
+    handleLogin();
   };
 
   const logout = async () => {
-    await signOut(auth);
+    setUser(null);
     router.push('/login');
   };
   
-  useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
-      setUser(currentUser);
-      setLoading(false);
-    });
-    return () => unsubscribe();
-  }, [auth]);
-
   const value = {
     user,
     loading,
