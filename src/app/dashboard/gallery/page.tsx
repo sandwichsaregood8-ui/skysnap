@@ -107,6 +107,7 @@ export default function GalleryPage() {
                 if (!canvas) return;
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
+                if (!gl) return;
                 gl.viewport(0, 0, canvas.width, canvas.height);
             }
             window.addEventListener('resize', resize);
