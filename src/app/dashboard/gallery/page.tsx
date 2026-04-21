@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useEffect, useRef, useState } from 'react';
@@ -69,8 +70,9 @@ export default function GalleryPage() {
                 }
             `;
 
-            function createShader(gl, type, source) {
+            function createShader(gl: WebGLRenderingContext, type: number, source: string) {
                 const shader = gl.createShader(type);
+                if (!shader) return null;
                 gl.shaderSource(shader, source);
                 gl.compileShader(shader);
                 if (!gl.getShaderParameter(shader, gl.COMPILE_STATUS)) {
@@ -80,8 +82,13 @@ export default function GalleryPage() {
             }
 
             const program = gl.createProgram();
-            gl.attachShader(program, createShader(gl, gl.VERTEX_SHADER, vertexSource));
-            gl.attachShader(program, createShader(gl, gl.FRAGMENT_SHADER, fragmentSource));
+            if (!program) return;
+            const vs = createShader(gl, gl.VERTEX_SHADER, vertexSource);
+            const fs = createShader(gl, gl.FRAGMENT_SHADER, fragmentSource);
+
+            if (!vs || !fs) return;
+            gl.attachShader(program, vs);
+            gl.attachShader(program, fs);
             gl.linkProgram(program);
             gl.useProgram(program);
 
@@ -97,6 +104,7 @@ export default function GalleryPage() {
             const uRes = gl.getUniformLocation(program, 'u_resolution');
 
             function resize() {
+                if (!canvas) return;
                 canvas.width = window.innerWidth;
                 canvas.height = window.innerHeight;
                 gl.viewport(0, 0, canvas.width, canvas.height);
@@ -104,13 +112,22 @@ export default function GalleryPage() {
             window.addEventListener('resize', resize);
             resize();
 
+            let animationFrameId: number;
             function render(time) {
+                if(!gl) return;
                 gl.uniform1f(uTime, time * 0.001);
                 gl.uniform2f(uRes, canvas.width, canvas.height);
                 gl.drawArrays(gl.TRIANGLES, 0, 6);
-                requestAnimationFrame(render);
+                animationFrameId = requestAnimationFrame(render);
             }
             requestAnimationFrame(render);
+
+            return () => {
+                window.removeEventListener('resize', resize);
+                if (animationFrameId) {
+                    cancelAnimationFrame(animationFrameId);
+                }
+            }
         }
     }, []);
 
