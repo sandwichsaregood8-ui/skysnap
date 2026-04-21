@@ -70,6 +70,7 @@ const OneTapHandler = () => {
       toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: 'An error occurred during One Tap sign-in.' });
     },
     disabled: pathname !== '/login',
+    use_fedcm_for_prompt: false,
   });
 
   return null;
