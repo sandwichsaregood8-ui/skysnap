@@ -32,8 +32,8 @@ export default function SignUpPage() {
   };
 
   // Handler for Google Sign-In button
-  const handleGoogleSignIn = async () => {
-    await googleSignIn();
+  const handleGoogleSignIn = () => {
+    googleSignIn();
   };
 
   // While loading, show a simple loading indicator

@@ -12,14 +12,14 @@ import {
   signOut,
   type User,
 } from 'firebase/auth';
-import { auth } from '@/firebase/config'; // Import from the new config file
+import { auth } from '@/firebase/config';
 import { useToast } from '@/hooks/use-toast';
 
 // Define the shape of the authentication context
 interface AuthContextType {
   user: User | null;
   loading: boolean;
-  googleSignIn: () => Promise<void>;
+  googleSignIn: () => void;
   sendMagicLink: (email: string) => Promise<void>;
   logout: () => Promise<void>;
 }
@@ -82,23 +82,32 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   }, [router, toast]);
 
   // Function to sign in with Google using a popup
-  const googleSignIn = async () => {
-    setLoading(true);
+  const googleSignIn = () => {
     const provider = new GoogleAuthProvider();
-    try {
-      // Trigger the Google sign-in popup window
-      await signInWithPopup(auth, provider);
-      // On successful sign-in, redirect to the dashboard
-      router.push('/dashboard');
-    } catch (error: any) {
-      console.error("Google Sign-In Error:", error);
-      toast({
-        title: "Sign-in Error",
-        description: error.message,
-        variant: "destructive",
+    setLoading(true);
+    signInWithPopup(auth, provider)
+      .then(() => {
+        // On successful sign-in, redirect to the dashboard
+        router.push('/dashboard');
+      })
+      .catch((error: any) => {
+        console.error("Google Sign-In Error:", error);
+        let description = error.message;
+        if (error.code === 'auth/popup-blocked') {
+          description = "Popup was blocked by the browser. Please allow popups for this site and try again.";
+        } else if (error.code === 'auth/popup-closed-by-user') {
+          description = "Sign-in was cancelled. Please try again.";
+        }
+        toast({
+          title: "Sign-in Error",
+          description: description,
+          variant: "destructive",
+        });
+      })
+      .finally(() => {
+        // Set loading to false on failure to re-enable UI
+        setLoading(false);
       });
-      setLoading(false);
-    }
   };
   
   // Function to send a magic sign-in link to the user's email
@@ -107,8 +116,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     // Configuration for the magic link
     const actionCodeSettings = {
       // URL to redirect back to after sign-in from email.
-      // We use the current URL so the user lands back where they started.
-      url: window.location.origin + pathname,
+      url: window.location.origin + '/login',
       handleCodeInApp: true, // This must be true for web apps
     };
 

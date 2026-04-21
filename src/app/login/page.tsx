@@ -129,9 +129,9 @@ export default function LoginPage() {
   };
   
   // Handler for the Google sign-in button click
-  const handleGoogleSignIn = async (e: React.MouseEvent) => {
+  const handleGoogleSignIn = (e: React.MouseEvent) => {
     e.preventDefault();
-    await googleSignIn();
+    googleSignIn();
   };
 
   return (
